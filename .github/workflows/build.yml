@@ -37,15 +37,34 @@ jobs:
           gradle-version: '8.7'
 
       - name: Find Android project
+        id: android
+        shell: bash
         run: |
           echo "Ищем build.gradle:"
           find game -name build.gradle -o -name build.gradle.kts
 
-          PROJECT_DIR=$(find game -name settings.gradle -o -name settings.gradle.kts | head -1 | xargs -r dirname)
+          PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
 
           if [ -z "$PROJECT_DIR" ]; then
+            PROJECT_DIR="$(find game -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -print -quit | xargs -r dirname | xargs -r dirname)"
+          fi
+
+          if [ -z "$PROJECT_DIR" ] || [ ! -d "$PROJECT_DIR" ]; then
             echo "ОШИБКА: не найден Android-проект"
             exit 1
           fi
 
-          echo "PROJECT_DIR
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Найден проект: $PROJECT_DIR"
+
+      - name: Build APK
+        run: |
+          cd "$PROJECT_DIR"
+          gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Steklo-APK
+          path: game/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
