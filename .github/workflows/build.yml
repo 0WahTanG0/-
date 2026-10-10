@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'steklo-v2.5.zip'
+      - 'steklo-v3.0.zip'
       - '.github/workflows/build.yml'
 
 jobs:
@@ -15,9 +15,15 @@ jobs:
       - name: Download repository
         uses: actions/checkout@v4
 
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
       - name: Extract game archive
         run: |
-          unzip -o steklo-v2.5.zip -d game
+          mkdir -p game
+          unzip -o steklo-v3.0.zip -d game
+          echo "Содержимое архива:"
+          find game -maxdepth 4 -type f | head -100
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -30,14 +36,16 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build APK
+      - name: Find Android project
         run: |
-          cd game/steklo-main
-          gradle assembleDebug
+          echo "Ищем build.gradle:"
+          find game -name build.gradle -o -name build.gradle.kts
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Steklo-APK
-          path: game/steklo-main/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          PROJECT_DIR=$(find game -name settings.gradle -o -name settings.gradle.kts | head -1 | xargs -r dirname)
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ОШИБКА: не найден Android-проект"
+            exit 1
+          fi
+
+          echo "PROJECT_DIR
