@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'steklo-v3.0.zip'
+      - 'steklo-v3.0-fixed.zip'
       - '.github/workflows/build.yml'
 
 jobs:
@@ -21,9 +21,9 @@ jobs:
       - name: Extract game archive
         run: |
           mkdir -p game
-          unzip -o steklo-v3.0.zip -d game
+          unzip -o steklo-v3.0-fixed.zip -d game
           echo "Содержимое архива:"
-          find game -maxdepth 4 -type f | head -100
+          find game -maxdepth 5 -type f | head -100
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -37,20 +37,12 @@ jobs:
           gradle-version: '8.7'
 
       - name: Find Android project
-        id: android
         shell: bash
         run: |
-          echo "Ищем build.gradle:"
-          find game -name build.gradle -o -name build.gradle.kts
-
           PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
 
           if [ -z "$PROJECT_DIR" ]; then
-            PROJECT_DIR="$(find game -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -print -quit | xargs -r dirname | xargs -r dirname)"
-          fi
-
-          if [ -z "$PROJECT_DIR" ] || [ ! -d "$PROJECT_DIR" ]; then
-            echo "ОШИБКА: не найден Android-проект"
+            echo "ОШИБКА: не найден settings.gradle"
             exit 1
           fi
 
