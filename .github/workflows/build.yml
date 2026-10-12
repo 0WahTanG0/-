@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'steklo-v3.0-fixed.zip'
+      - 'steklo-v3.1-graphics.zip'
       - '.github/workflows/build.yml'
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - name: Extract game archive
         run: |
           mkdir -p game
-          unzip -o steklo-v3.0-fixed.zip -d game
+          unzip -o steklo-v3.1-graphics.zip -d game
           echo "Содержимое архива:"
           find game -maxdepth 5 -type f | head -100
 
