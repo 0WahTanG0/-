@@ -15,56 +15,25 @@ jobs:
       - name: Install unzip
         run: sudo apt-get update && sudo apt-get install -y unzip
 
-      - name: Extract game archive and fix project structure
+      - name: Extract game archive and write updated game files
         shell: bash
         run: |
           mkdir -p game
-
           if [ -f "steklo-v3.1-graphics.zip" ]; then
             ZIP_FILE="steklo-v3.1-graphics.zip"
           else
             ZIP_FILE="$(find . -maxdepth 2 -type f -name '*.zip' | head -n 1)"
           fi
-
-          if [ -n "$ZIP_FILE" ]; then
-            echo "Распаковка архива: $ZIP_FILE"
-            unzip -o "$ZIP_FILE" -d game
-          else
-            echo "ZIP не найден, копируем файлы репозитория..."
-            rsync -a --exclude='game' --exclude='.git' ./ game/
-          fi
-
+          unzip -o "$ZIP_FILE" -d game
           PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
           if [ -z "$PROJECT_DIR" ]; then
             echo "ОШИБКА: не найден settings.gradle"
             exit 1
           fi
-
           mkdir -p "$PROJECT_DIR/app/src/main/assets"
           mkdir -p "$PROJECT_DIR/app/src/main/java/ru/steklo/game"
-
-          # Если обновленный index.html лежит в корне репозитория или в корне архива, переноcим его в assets
-          for CANDIDATE in "./index.html" "game/index.html" "$PROJECT_DIR/index.html"; do
-            if [ -s "$CANDIDATE" ]; then
-              echo "Найден обновленный index.html ($CANDIDATE), копируем в assets..."
-              cp -f "$CANDIDATE" "$PROJECT_DIR/app/src/main/assets/index.html"
-            fi
-          done
-
-          # Проверяем, что index.html и three.min.js не пустые
-          if [ ! -s "$PROJECT_DIR/app/src/main/assets/index.html" ]; then
-            echo "ОШИБКА: файл app/src/main/assets/index.html отсутствует или пустой (0 байт)!"
-            exit 1
-          fi
-          if [ ! -s "$PROJECT_DIR/app/src/main/assets/three.min.js" ]; then
-            echo "ОШИБКА: файл app/src/main/assets/three.min.js отсутствует или пустой!"
-            exit 1
-          fi
-
-          # Записываем гарантированно рабочий MainActivity.java по точному пути пакета
-          cat << 'EOF' > "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
+          cat << 'EOF_JAVA' > "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
           package ru.steklo.game;
-
           import android.app.Activity;
           import android.content.Context;
           import android.os.Build;
@@ -79,16 +48,13 @@ jobs:
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
-
           public class MainActivity extends Activity {
               private WebView web;
-
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   requestWindowFeature(Window.FEATURE_NO_TITLE);
                   getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
                   web = new WebView(this);
                   WebSettings s = web.getSettings();
                   s.setJavaScriptEnabled(true);
@@ -97,7 +63,6 @@ jobs:
                   s.setAllowFileAccessFromFileURLs(true);
                   s.setAllowUniversalAccessFromFileURLs(true);
                   s.setMediaPlaybackRequiresUserGesture(false);
-
                   web.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
                   web.setWebViewClient(new WebViewClient());
                   web.setWebChromeClient(new WebChromeClient());
@@ -105,17 +70,13 @@ jobs:
                   web.setBackgroundColor(0xFF1B2330);
                   setContentView(web);
                   hideBars();
-
                   web.loadUrl("file:///android_asset/index.html");
               }
-
               public static class AndroidBridge {
                   private final Context ctx;
-
                   public AndroidBridge(Context ctx) {
                       this.ctx = ctx;
                   }
-
                   @JavascriptInterface
                   public void vibrate(int ms) {
                       try {
@@ -127,11 +88,10 @@ jobs:
                                   v.vibrate(Math.max(10, ms));
                               }
                           }
-                      } catch (Exception ignored) {
+                      } catch (Throwable ignored) {
                       }
                   }
               }
-
               private void hideBars() {
                   getWindow().getDecorView().setSystemUiVisibility(
                           View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -141,13 +101,11 @@ jobs:
                                   | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                                   | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
               }
-
               @Override
               public void onWindowFocusChanged(boolean hasFocus) {
                   super.onWindowFocusChanged(hasFocus);
                   if (hasFocus) hideBars();
               }
-
               @Override
               public void onBackPressed() {
                   if (web != null) {
@@ -158,19 +116,16 @@ jobs:
                       super.onBackPressed();
                   }
               }
-
               @Override
               protected void onPause() {
                   super.onPause();
                   if (web != null) web.onPause();
               }
-
               @Override
               protected void onResume() {
                   super.onResume();
                   if (web != null) web.onResume();
               }
-
               @Override
               protected void onDestroy() {
                   if (web != null) {
@@ -181,10 +136,1407 @@ jobs:
                   super.onDestroy();
               }
           }
-          EOF
-
+          EOF_JAVA
+          cat << 'EOF_HTML' > "$PROJECT_DIR/app/src/main/assets/index.html"
+          <!doctype html>
+          <html lang="ru">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+          <title>Стекольщик 3D · 3.2</title>
+          <style>
+          html,body{margin:0;height:100%;overflow:hidden;background:#87b8d8;touch-action:none;
+            user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+            font-family:system-ui,-apple-system,Roboto,"Segoe UI",sans-serif}
+          canvas{display:block}
+          #vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(10,14,20,0.32) 100%);mix-blend-mode:multiply}
+          #toolPanel{position:fixed;right:12px;bottom:14px;z-index:7;display:flex;flex-direction:column;gap:7px;pointer-events:auto;max-width:34vw}
+          .toolBtn{border:1px solid #ffffff55;border-radius:12px;background:rgba(20,29,41,.94);color:#fff;padding:9px 12px;font-size:13px;font-weight:850;box-shadow:0 3px 0 #0004;white-space:nowrap;transition:transform .12s,background .12s}
+          .toolBtn.active{background:#f0a500;color:#17202b;border-color:#ffe29a;transform:translateX(-3px)}
+          #toolStatus{position:fixed;left:12px;bottom:12px;z-index:7;background:rgba(20,29,41,.9);color:#fff;border:1px solid #ffffff2c;border-radius:12px;padding:8px 11px;font-size:12px;font-weight:800;pointer-events:none;max-width:52vw}
+          #toolStatus small{display:block;color:#b9c5d3;font-weight:600;margin-top:3px}
+          @media (orientation:landscape){#hud{padding:8px 10px 0}#money{font-size:19px;padding:6px 13px}#rank{font-size:11px;padding:6px 9px;margin-top:5px}#repCard{font-size:10px;padding:5px 8px}#upBtn{font-size:14px;padding:8px 13px}#hint{top:10px;font-size:13px;max-width:42vw;overflow:hidden;text-overflow:ellipsis}#toolPanel{right:10px;bottom:10px;gap:5px}.toolBtn{font-size:12px;padding:7px 9px}#toolStatus{left:10px;bottom:10px}}
+          #hud{position:fixed;left:0;right:0;top:0;padding:12px 12px 0;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5}
+          #money{background:rgba(20,26,36,.88);color:#ffd166;font-weight:800;font-size:22px;padding:8px 16px;border-radius:24px;min-width:90px}
+          #rank{background:rgba(20,26,36,.88);color:#fff;font-weight:800;font-size:13px;padding:8px 12px;border-radius:16px;margin-top:7px;min-width:130px;box-shadow:0 2px 8px #0003}
+          #rank .bar{height:6px;background:#3a4658;border-radius:8px;margin-top:6px;overflow:hidden}
+          #rankFill{height:100%;width:0;background:linear-gradient(90deg,#f07818,#ffd166);border-radius:8px}
+          #rank small{color:#b9c5d3;font-weight:600}
+          #repCard{background:rgba(20,26,36,.88);color:#fff;font-size:12px;font-weight:800;padding:7px 11px;border-radius:13px;margin-top:5px;min-width:130px;box-shadow:0 2px 8px #0003}
+          #repCard .bar{height:5px;background:#3a4658;border-radius:8px;margin-top:5px;overflow:hidden}
+          #repFill{height:100%;width:50%;background:linear-gradient(90deg,#e05252,#ffd166,#48bb78);border-radius:8px}
+          #comboBadge{display:none;background:linear-gradient(90deg,#f07818,#ffd166);color:#17202b;font-size:11px;font-weight:900;padding:4px 10px;border-radius:10px;margin-top:5px;box-shadow:0 2px 8px #0004}
+          #progressCard{background:#202b3a;border:1px solid #3b4b61;border-radius:14px;padding:12px;margin-bottom:12px}
+          #progressCard .big{font-size:18px;font-weight:900;color:#ffd166}
+          #progressCard .muted{font-size:13px;color:#bdc7d5;line-height:1.45;margin-top:5px}
+          #progressCard .contract{margin-top:9px;padding:9px;background:#2b394c;border-radius:10px;font-size:13px;line-height:1.4}
+          #upBtn{pointer-events:auto;background:#f0a500;color:#1b2330;border:0;font-weight:800;font-size:16px;padding:10px 16px;border-radius:24px;box-shadow:0 3px 0 #a87300}
+          #hint{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:rgba(20,26,36,.75);color:#fff;font-weight:700;font-size:15px;padding:8px 16px;border-radius:18px;white-space:nowrap;pointer-events:none;z-index:5;transition:opacity .3s}
+          #joy{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.5);display:none;pointer-events:none;z-index:6}
+          #knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(255,255,255,.85)}
+          .pop{position:fixed;font-weight:900;font-size:22px;color:#ffd166;text-shadow:0 2px 0 #6b4b00,0 0 6px rgba(0,0,0,.4);pointer-events:none;z-index:4;transform:translate(-50%,-50%);white-space:nowrap}
+          #panel{position:fixed;inset:0;background:rgba(10,14,22,.6);display:none;align-items:center;justify-content:center;z-index:10}
+          #panel .box{background:#1f2836;border-radius:20px;padding:18px;width:min(92vw,400px);color:#fff;max-height:88vh;overflow:auto}
+          #panel h2{margin:0 0 12px;font-size:22px;text-align:center;color:#f0a500}
+          .up{display:flex;align-items:center;gap:10px;background:#2a3446;border-radius:14px;padding:10px 12px;margin-bottom:10px}
+          .up .t{flex:1}.up .n{font-weight:800;font-size:16px}.up .d{font-size:13px;color:#a0aec0;margin-top:2px}
+          .up .lv{font-size:12px;color:#48bb78;margin-top:4px}
+          .up button{border:0;border-radius:12px;padding:10px 12px;font-weight:800;font-size:15px;background:#f0a500;color:#1b2330;min-width:84px;transition:transform .12s,filter .12s}
+          .up button:active{transform:scale(.95);filter:brightness(1.15)}
+          .up button.no{background:#4a5568;color:#a0aec0}
+          #close{display:block;width:100%;margin-top:6px;border:0;border-radius:14px;padding:12px;font-weight:800;font-size:16px;background:#4a5568;color:#fff}
+          #reset{display:block;width:100%;margin-top:8px;border:0;background:none;color:#718096;font-size:13px;padding:6px}
+          #toast{position:fixed;left:50%;top:28%;transform:translate(-50%,-12px) scale(.92);opacity:0;pointer-events:none;z-index:20;background:linear-gradient(135deg,#202b3a,#34465c);border:2px solid #f0a500;color:#fff;border-radius:18px;padding:14px 20px;text-align:center;min-width:190px;max-width:82vw;box-shadow:0 12px 36px #0008;transition:opacity .22s,transform .22s}
+          #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+          #toast .icon{font-size:30px;display:block;margin-bottom:4px}
+          #toast .title{font-weight:900;font-size:18px;color:#ffd166}
+          #toast .sub{font-size:13px;color:#e2e8f0;margin-top:4px}
+          #toast.pulse{animation:toastPulse .55s ease-out}
+          #toast.kind-building{border-color:#56c8f2;animation:buildingReveal .7s cubic-bezier(.2,.9,.25,1.2)}
+          #toast.kind-level{border-color:#ffe08a;animation:levelReveal .8s cubic-bezier(.2,.9,.25,1.2)}
+          #toast.kind-tool{border-color:#72d7a1;animation:toolReveal .45s ease-out}
+          #toast.kind-job{border-color:#8ac7ff;animation:jobReveal .55s ease-out}
+          @keyframes toastPulse{0%{box-shadow:0 0 0 0 #f0a50099}100%{box-shadow:0 0 0 22px #f0a50000}}
+          @keyframes buildingReveal{0%{transform:translate(-50%,30px) scale(.45) rotate(-5deg);filter:brightness(1.8)}70%{transform:translate(-50%,-4px) scale(1.06)}100%{transform:translate(-50%,0) scale(1)}}
+          @keyframes levelReveal{0%{transform:translate(-50%,-25px) scale(.6);filter:brightness(2)}55%{transform:translate(-50%,0) scale(1.12)}100%{transform:translate(-50%,0) scale(1)}}
+          @keyframes toolReveal{0%{transform:translate(-50%,0) scale(.65) rotate(4deg)}60%{transform:translate(-50%,0) scale(1.08) rotate(-2deg)}100%{transform:translate(-50%,0) scale(1)}}
+          @keyframes jobReveal{0%{transform:translate(-50%,12px) scale(.8);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+          </style>
+          </head>
+          <body>
+          <div id="hud">
+            <div>
+              <div id="money">0 ₽</div>
+              <div id="rank">
+                <div id="rankTitle">Уровень 1 · Новичок</div>
+                <small id="rankXp">0 / 100 опыта</small>
+                <div class="bar"><div id="rankFill"></div></div>
+              </div>
+              <div id="repCard"><span id="repText">Репутация мастерской · 50/100</span><div class="bar"><div id="repFill"></div></div></div>
+              <div id="comboBadge">🔥 Серия быстрого сервиса ×2</div>
+            </div>
+            <button id="upBtn">⬆ Развитие</button>
+          </div>
+          <div id="hint"></div>
+          <div id="toast" role="status" aria-live="polite"><span class="icon">🔧</span><div class="title">Улучшение</div><div class="sub"></div></div>
+          <div id="joy"><div id="knob"></div></div>
+          <div id="toolStatus">Инструмент: Замена стекла<small>Склад: 0/3 стекол · 0/3 наборов · 0/3 плёнок</small></div>
+          <div id="toolPanel">
+            <button class="toolBtn active" data-tool="replacement">🪟 Замена</button>
+            <button class="toolBtn" data-tool="repair">🛠 Ремонт</button>
+            <button class="toolBtn" data-tool="tint">🎞 Тонировка</button>
+          </div>
+          <div id="panel">
+            <div class="box">
+              <h2>Развитие мастерской</h2>
+              <div id="progressCard"></div>
+              <div id="ups"></div>
+              <button id="soundBtn" style="display:block;width:100%;margin-top:8px;border:0;border-radius:14px;padding:11px;font-weight:800;background:#35445a;color:#fff">🔊 Звуки: включены</button>
+              <button id="close">Закрыть</button>
+              <button id="reset">Начать заново</button>
+            </div>
+          </div>
+          <div id="vignette"></div>
+          <script src="three.min.js"></script>
+          <script>
+          'use strict';
+          const BAYX = [-2, 4, 10];
+          const CAR_Z = -7.4;
+          const WORK_Z = -3.5;
+          const LANE_Z = -14;
+          const ROAD_X = -10;
+          const WARE = { x: -4, z: 6.0 };
+          const CASH = { x: 9.5, z: 5.3 };
+          const BOUNDS = { x0: -6.4, x1: 15.4, z0: -4.7, z1: 10.2 };
+          const CAR_TYPES = [
+            { name: 'Хэтчбек', price: 40, s: [1, 1, 0.95], need: 0 },
+            { name: 'Седан', price: 60, s: [1, 1, 1.08], need: 1 },
+            { name: 'Внедорожник', price: 90, s: [1.1, 1.25, 1.1], need: 3 },
+            { name: 'Универсал', price: 75, s: [1.02, 1.08, 1.18], need: 2 },
+            { name: 'Купе', price: 105, s: [1.03, 0.88, 1.02], need: 4 },
+            { name: 'Премиум-кроссовер', price: 125, s: [1.16, 1.3, 1.16], need: 5 },
+            { name: 'Грузовик', price: 140, s: [1.18, 1.45, 1.22], need: 6 },
+          ];
+          const CAR_COLORS = [0xc0392b, 0x2e86de, 0xecf0f1, 0x2d3436, 0x27ae60, 0xf39c12, 0x8e44ad, 0x7f8c8d, 0x16a085, 0xe17055];
+          const SERVICES = {
+            replacement: { label: 'ЗАМЕНА', icon: '🪟', tool: 'replacement', price: 1.45, name: 'Замена лобового' },
+            repair: { label: 'РЕМОНТ', icon: '🛠', tool: 'repair', price: 1, name: 'Ремонт стекла' },
+            tint: { label: 'ТОНИРОВКА', icon: '🎞', tool: 'tint', price: 1.2, name: 'Тонировка' }
+          };
+          const SERVICE_KEYS = Object.keys(SERVICES);
+          let selectedTool = 'replacement';
+          let fastStreak = 0;
+          const ZONES = [
+            { id: 'bay2', name: 'Бокс 2', cost: 150, x: 4, z: WORK_Z, req: [] },
+            { id: 'loader1', name: 'Грузчик', cost: 250, x: -0.6, z: 6.6, req: ['bay2'] },
+            { id: 'mech1', name: 'Мастер', cost: 350, x: -4.4, z: WORK_Z, req: ['loader1'] },
+            { id: 'bay3', name: 'Бокс 3', cost: 600, x: 10, z: WORK_Z, req: ['mech1'] },
+            { id: 'cashier', name: 'Кассир', cost: 500, x: 12.8, z: 5.6, req: ['bay3'] },
+            { id: 'mech2', name: 'Мастер', cost: 700, x: 1.6, z: WORK_Z, req: ['cashier'] },
+            { id: 'mech3', name: 'Мастер', cost: 900, x: 7.6, z: WORK_Z, req: ['mech2'] },
+            { id: 'loader2', name: 'Грузчик', cost: 1000, x: 1.8, z: 6.6, req: ['mech3'] },
+          ];
+          const UPGS = [
+            { k: 'speed', name: 'Кроссовки', desc: 'Быстрее бегаешь', base: 60, max: 5 },
+            { k: 'cap', name: 'Крепкая спина', desc: '+1 к переносимым стеклам, наборам и плёнкам', base: 80, max: 5 },
+            { k: 'work', name: 'Инструменты', desc: 'Быстрее замена, ремонт и тонировка', base: 100, max: 5 },
+            { k: 'price', name: 'Реклама', desc: '+15% к оплате', base: 150, max: 5 },
+            { k: 'staff', name: 'Обучение персонала', desc: 'Работники быстрее', base: 200, max: 5 },
+          ];
+          let save = { money: 0, unlocked: [], paid: {}, up: {}, cars: 0, xp: 0, level: 1, contractClaimed: 0, reputation: 50 };
+          try { const s = JSON.parse(localStorage.getItem('steklo3d') || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
+          UPGS.forEach(u => { if (save.up[u.k] == null) save.up[u.k] = 0; });
+          if (!Number.isFinite(save.xp)) save.xp = 0;
+          if (!Number.isFinite(save.level)) save.level = 1;
+          if (!Number.isFinite(save.contractClaimed)) save.contractClaimed = 0;
+          if (!Number.isFinite(save.reputation)) save.reputation = 50;
+          save.reputation = Math.max(0, Math.min(100, save.reputation));
+          function persist() { try { localStorage.setItem('steklo3d', JSON.stringify(save)); } catch (e) {} }
+          const has = id => save.unlocked.includes(id);
+          const playerSpeed = () => 4.2 + save.up.speed * 0.7;
+          const playerCap = () => 3 + save.up.cap;
+          const workTime = () => 2.6 * Math.pow(0.82, save.up.work);
+          const priceMul = () => (1 + 0.15 * save.up.price) * (0.8 + save.reputation * 0.004);
+          const staffMul = () => 1 + 0.2 * save.up.staff;
+          const upCost = u => Math.round(u.base * Math.pow(save.up[u.k] + 1, 1.7));
+          const renderer = new THREE.WebGLRenderer({ antialias: true });
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer.outputColorSpace = THREE.SRGBColorSpace;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.12;
+          document.body.appendChild(renderer.domElement);
+          const scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x9fd0ea);
+          scene.fog = new THREE.Fog(0x9fd0ea, 46, 92);
+          const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 200);
+          function canvasTex(w, h, draw) {
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            draw(c.getContext('2d'), w, h);
+            const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+          }
+          (function skyDome() {
+            const skyTex = canvasTex(64, 256, (g, W, H) => {
+              const grad = g.createLinearGradient(0, 0, 0, H);
+              grad.addColorStop(0, '#5aa3d8');
+              grad.addColorStop(0.45, '#9fd0ea');
+              grad.addColorStop(0.78, '#cfe9f2');
+              grad.addColorStop(1, '#eaf6e9');
+              g.fillStyle = grad; g.fillRect(0, 0, W, H);
+            });
+            skyTex.wrapS = THREE.ClampToEdgeWrapping; skyTex.wrapT = THREE.ClampToEdgeWrapping;
+            const sky = new THREE.Mesh(new THREE.SphereGeometry(140, 24, 16),
+              new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide, fog: false, depthWrite: false }));
+            sky.renderOrder = -10;
+            scene.add(sky);
+          })();
+          const pmrem = new THREE.PMREMGenerator(renderer);
+          pmrem.compileEquirectangularShader();
+          const envScene = new THREE.Scene();
+          envScene.background = (() => {
+            const t = canvasTex(16, 128, (g, W, H) => {
+              const grad = g.createLinearGradient(0, 0, 0, H);
+              grad.addColorStop(0, '#cfe8ff');
+              grad.addColorStop(0.45, '#ffffff');
+              grad.addColorStop(0.55, '#dce7d4');
+              grad.addColorStop(1, '#6b8f57');
+              g.fillStyle = grad; g.fillRect(0, 0, W, H);
+            });
+            t.mapping = THREE.EquirectangularReflectionMapping;
+            return t;
+          })();
+          const envMap = pmrem.fromScene(envScene, 0.04).texture;
+          envMap.userData = { shared: true };
+          envScene.background = null;
+          pmrem.dispose();
+          scene.add(new THREE.HemisphereLight(0xffffff, 0x64735a, 1.0));
+          const sun = new THREE.DirectionalLight(0xfff1d8, 2.1);
+          sun.castShadow = true;
+          sun.shadow.mapSize.set(2048, 2048);
+          Object.assign(sun.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 1, far: 60 });
+          sun.shadow.bias = -0.001;
+          sun.shadow.radius = 2.2;
+          scene.add(sun, sun.target);
+          const fill = new THREE.DirectionalLight(0xaecfff, 0.45);
+          scene.add(fill, fill.target);
+          const M = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.72, metalness: 0.04 });
+          const box = (w, h, d, mat, x = 0, y = 0, z = 0, cast = true) => {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+            m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; return m;
+          };
+          function roundedBox(w, h, d, mat, x = 0, y = 0, z = 0, r = 0.1, cast = true) {
+            r = Math.min(r, w * 0.22, h * 0.22, d * 0.22);
+            const shape = new THREE.Shape();
+            shape.moveTo(-w / 2 + r, -h / 2); shape.lineTo(w / 2 - r, -h / 2); shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+            shape.lineTo(w / 2, h / 2 - r); shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+            shape.lineTo(-w / 2 + r, h / 2); shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+            shape.lineTo(-w / 2, -h / 2 + r); shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+            const depth = Math.max(0.05, d - r * 1.2);
+            const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: r * 0.28, bevelThickness: r * 0.28, curveSegments: 5 });
+            geo.translate(0, 0, -depth / 2 - r * 0.28);
+            const mesh = new THREE.Mesh(geo, mat); mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; return mesh;
+          }
+          const flat = (w, d, mat, x, y, z) => {
+            const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat);
+            m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.receiveShadow = true; return m;
+          };
+          function label(text, w, size, color = '#ffffff', x, z, rot = 0) {
+            const tex = canvasTex(512, 128, (g, W, H) => {
+              g.font = `900 ${size}px system-ui,Roboto,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+              g.lineWidth = 10; g.strokeStyle = 'rgba(0,0,0,0.35)'; g.strokeText(text, W / 2, H / 2);
+              g.fillStyle = color; g.fillText(text, W / 2, H / 2);
+            });
+            const m = flat(w, w / 4, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }), x, 0.06, z);
+            m.rotation.z = rot; scene.add(m); return m;
+          }
+          const crackTex = canvasTex(256, 128, (g, W, H) => {
+            g.fillStyle = '#6fa8cf'; g.fillRect(0, 0, W, H);
+            g.fillStyle = 'rgba(255,255,255,0.25)'; g.beginPath(); g.moveTo(60, 0); g.lineTo(100, 0); g.lineTo(50, H); g.lineTo(10, H); g.fill();
+            const cx = 150, cy = 55; g.strokeStyle = '#fff'; g.lineWidth = 2.5;
+            for (let i = 0; i < 12; i++) {
+              let a = i / 12 * Math.PI * 2, x = cx, y = cy; g.beginPath(); g.moveTo(x, y);
+              for (let s = 0; s < 5; s++) { a += (Math.random() - .5) * .6; x += Math.cos(a) * 22; y += Math.sin(a) * 14; g.lineTo(x, y); }
+              g.stroke();
+            }
+            g.beginPath(); g.arc(cx, cy, 16, 0, 7); g.stroke(); g.beginPath(); g.arc(cx, cy, 32, 0, 7); g.stroke();
+            g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy, 5, 0, 7); g.fill();
+          });
+          crackTex.userData = { shared: true };
+          const cleanTex = canvasTex(256, 128, (g, W, H) => {
+            g.fillStyle = '#7dbbe3'; g.fillRect(0, 0, W, H);
+            g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.moveTo(60, 0); g.lineTo(110, 0); g.lineTo(60, H); g.lineTo(10, H); g.fill();
+            g.fillStyle = 'rgba(255,255,255,0.2)'; g.beginPath(); g.moveTo(130, 0); g.lineTo(150, 0); g.lineTo(100, H); g.lineTo(80, H); g.fill();
+          });
+          cleanTex.userData = { shared: true };
+          const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x9fd6f5, roughness: 0.1, metalness: 0, transparent: true, opacity: 0.92, clearcoat: 1, clearcoatRoughness: 0.08, transmission: 0.55, thickness: 0.3, ior: 1.52, envMap, envMapIntensity: 1.1 });
+          glassMat.userData = { shared: true };
+          const moneyMat = new THREE.MeshLambertMaterial({ color: 0x4caf50, emissive: 0x0d3b10 });
+          moneyMat.userData = { shared: true };
+          const glassGeo = new THREE.BoxGeometry(0.95, 0.07, 0.62);
+          glassGeo.userData = { shared: true };
+          const moneyGeo = new THREE.BoxGeometry(0.5, 0.12, 0.26);
+          moneyGeo.userData = { shared: true };
+          const groundTex = canvasTex(256, 256, (g, W, H) => {
+            g.fillStyle = '#86bf4a'; g.fillRect(0, 0, W, H);
+            for (let i = 0; i < 1400; i++) {
+              const x = Math.random() * W, y = Math.random() * H, r = 1 + Math.random() * 1.6;
+              g.fillStyle = Math.random() > 0.5 ? 'rgba(60,110,30,0.16)' : 'rgba(170,215,110,0.18)';
+              g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+            }
+          });
+          groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping; groundTex.repeat.set(44, 44); groundTex.anisotropy = 4;
+          const groundMat = new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.95, metalness: 0 });
+          scene.add(flat(220, 220, groundMat, 0, 0, 0));
+          const blobTex = canvasTex(128, 128, (g, W, H) => {
+            const grad = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
+            grad.addColorStop(0, 'rgba(0,0,0,0.38)'); grad.addColorStop(0.7, 'rgba(0,0,0,0.14)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+            g.fillStyle = grad; g.fillRect(0, 0, W, H);
+          });
+          blobTex.userData = { shared: true };
+          function contactShadow(w, d, x, z, y = 0.015, parent = scene) {
+            const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }));
+            m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.renderOrder = -1; parent.add(m); return m;
+          }
+          scene.add(flat(5, 60, M(0x4b5058), ROAD_X, 0.01, 7));
+          scene.add(flat(42, 5, M(0x4b5058), 8.5, 0.01, LANE_Z));
+          for (let z = -10; z < 36; z += 4) scene.add(flat(0.25, 2, M(0xf5f0d0), ROAD_X, 0.02, z));
+          for (let x = -6; x < 30; x += 4) scene.add(flat(2, 0.25, M(0xf5f0d0), x, 0.02, LANE_Z));
+          scene.add(flat(23.6, 21.2, M(0xd9d3c5), 4.5, 0.02, 0));
+          const wallM = M(0xeae6dc), trimM = M(0xf0a500);
+          scene.add(box(0.4, 2.2, 21.2, wallM, -7.3, 1.1, 0));
+          scene.add(box(0.4, 2.2, 21.2, wallM, 16.3, 1.1, 0));
+          for (const x of [-5, 1, 7, 13]) scene.add(box(0.3, 2.6, 5.6, wallM, x, 1.3, -7.8));
+          scene.add(box(0.42, 0.25, 21.2, trimM, -7.3, 2.2, 0));
+          scene.add(box(0.42, 0.25, 21.2, trimM, 16.3, 2.2, 0));
+          for (const [x, z] of [[-14, -4], [-15, 6], [-14, 16], [20, 2], [21, 9], [19, -6], [28, -20], [-16, -20], [4, 15], [12, 15], [-3, 16]]) {
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.25, 1.45, 10), M(0x76513b)); trunk.position.set(x, 0.72, z); trunk.castShadow = true; scene.add(trunk);
+            for (let i = 0; i < 5; i++) {
+              const crown = new THREE.Mesh(new THREE.IcosahedronGeometry(0.85 + (i % 2) * 0.22, 1), M([0x246b38, 0x2e7d42, 0x39864a][i % 3]));
+              crown.position.set(x + (i % 2 ? 0.42 : -0.38), 1.75 + (i % 3) * 0.42, z + (i % 2 ? -0.28 : 0.25));
+              crown.scale.set(1, 0.92, 0.9); crown.castShadow = true; scene.add(crown);
+            }
+          }
+          for (const x of BAYX) {
+            const lamp = new THREE.Group(); lamp.position.set(x, 3.05, -7.0); scene.add(lamp);
+            lamp.add(box(2.2, 0.09, 0.55, M(0x303a46), 0, 0, 0, false));
+            lamp.add(box(1.85, 0.035, 0.32, new THREE.MeshStandardMaterial({ color: 0xfff3cf, emissive: 0xffd58a, emissiveIntensity: 0.65, roughness: 0.25 }), 0, -0.06, 0, false));
+            for (const side of [-1, 1]) lamp.add(box(0.08, 0.22, 0.08, M(0x657180), side * 0.82, -0.18, 0, false));
+            const cart = new THREE.Group(); cart.position.set(x - 1.85, 0, -4.0); scene.add(cart);
+            cart.add(box(0.8, 0.12, 0.55, M(0x3b4653), 0, 0.42, 0), box(0.74, 0.07, 0.5, M(0xf07818), 0, 0.51, 0));
+            for (const dx of [-0.28, 0.28]) for (const dz of [-0.18, 0.18]) {
+              const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.06, 12), M(0x20252b));
+              wheel.rotation.z = Math.PI / 2; wheel.position.set(dx, 0.12, dz); cart.add(wheel);
+            }
+          }
+          const signMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, side: THREE.DoubleSide });
+          const sign = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 1.3), signMat);
+          sign.position.set(4.5, 4.2, -10.35); scene.add(sign);
+          new THREE.TextureLoader().load('logo.png', tex => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            sign.material.map = tex;
+            sign.material.needsUpdate = true;
+          });
+          scene.add(box(6.8, 1.55, 0.2, M(0x171b22), 4.5, 4.2, -10.5, false));
+          for (const x of [1.5, 7.5]) scene.add(box(0.2, 4.2, 0.2, M(0x2d3748), x, 2.1, -10.5));
+          scene.add(box(4.2, 0.12, 1.4, M(0x546e7a), WARE.x, 0.5, 7.8));
+          scene.add(box(4.2, 0.12, 1.4, M(0x546e7a), WARE.x, 1.3, 7.8));
+          scene.add(box(4.2, 0.12, 1.4, M(0x546e7a), WARE.x, 2.1, 7.8));
+          for (const dx of [-2, 2]) for (const dz of [-0.6, 0.6]) scene.add(box(0.12, 2.3, 0.12, M(0x37474f), WARE.x + dx, 1.15, 7.8 + dz));
+          for (let s = 0; s < 3; s++) for (let i = 0; i < 6; i++) {
+            const g = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.62, 1.0), glassMat);
+            g.position.set(WARE.x - 1.6 + i * 0.62, 0.9 + s * 0.8, 7.8); g.rotation.z = 0.15; g.castShadow = true; scene.add(g);
+          }
+          const tintDispenser = new THREE.Group();
+          tintDispenser.position.set(WARE.x - 2.65, 0, 7.5);
+          scene.add(tintDispenser);
+          tintDispenser.add(new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.5, 0.12, 16), M(0x263238)));
+          const dispPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.1, 12), M(0x90a4ae));
+          dispPole.position.y = 1.05; tintDispenser.add(dispPole);
+          const tintCarousel = new THREE.Group();
+          tintCarousel.position.y = 1.15;
+          tintDispenser.add(tintCarousel);
+          for (let i = 0; i < 4; i++) {
+            const a = i * Math.PI / 2;
+            const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.85, 14),
+              new THREE.MeshPhysicalMaterial({ color: [0x1b2836, 0x2c3e50, 0x111921, 0x34495e][i], roughness: 0.18, metalness: 0.35, clearcoat: 0.9 }));
+            roll.position.set(Math.cos(a) * 0.24, 0, Math.sin(a) * 0.24);
+            roll.castShadow = true;
+            tintCarousel.add(roll);
+          }
+          label('СКЛАД', 3.2, 78, '#ffffff', WARE.x, 4.5);
+          scene.add(box(3.2, 1.0, 1.1, M(0x8d5a3b), 9.5, 0.5, 7.0));
+          scene.add(box(3.4, 0.1, 1.3, M(0x6d4c41), 9.5, 1.03, 7.0));
+          label('КАССА', 3.2, 78, '#ffffff', CASH.x, 3.9);
+          function ringMesh(r0, r1, color, x, z, opacity = 0.9, len = Math.PI * 2) {
+            const m = new THREE.Mesh(new THREE.RingGeometry(r0, r1, 40, 1, Math.PI / 2, len),
+              new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide }));
+            m.rotation.x = -Math.PI / 2; m.position.set(x, 0.05, z); scene.add(m); return m;
+          }
+          ringMesh(1.05, 1.25, 0x4fc3f7, WARE.x, WARE.z);
+          ringMesh(1.05, 1.25, 0x66bb6a, CASH.x, CASH.z);
+          function makePerson(shirt, pants = 0x37474f, hat = null, style = 0) {
+            const g = new THREE.Group();
+            const styles = [
+              { skin: 0xf1c27d, hair: 0x4b2e25, beard: 0x4b2e25, eyes: 0x35251e, hairType: 0, beardType: 1, brows: 0x38251e },
+              { skin: 0xd99a6c, hair: 0x211b19, beard: 0x211b19, eyes: 0x241b17, hairType: 1, beardType: 2, brows: 0x211b19 },
+              { skin: 0xf3d0a0, hair: 0x9b6742, beard: 0x9b6742, eyes: 0x4b6b75, hairType: 2, beardType: 0, brows: 0x75472c },
+              { skin: 0x8e5b3e, hair: 0x1c1715, beard: 0x1c1715, eyes: 0x241813, hairType: 3, beardType: 1, brows: 0x171211 },
+              { skin: 0xe9b18d, hair: 0x3d2b27, beard: 0x3d2b27, eyes: 0x344c65, hairType: 4, beardType: 0, brows: 0x30201c },
+              { skin: 0xc88761, hair: 0x2b201d, beard: 0x2b201d, eyes: 0x302019, hairType: 5, beardType: 2, brows: 0x241815 }
+            ];
+            const st = styles[Math.abs(style) % styles.length];
+            const skin = M(st.skin), hair = M(st.hair), brow = M(st.brows);
+            const legM = M(pants), bootM = M(0x252a31), gloveM = M(0x20242a);
+            const legL = box(0.23, 0.62, 0.25, legM, -0.15, 0.3, 0);
+            const legR = box(0.23, 0.62, 0.25, legM, 0.15, 0.3, 0);
+            legL.geometry.translate(0, -0.3, 0); legR.geometry = legL.geometry;
+            legL.position.y = legR.position.y = 0.6;
+            const bootL = box(0.28, 0.17, 0.38, bootM, -0.15, 0.12, 0.07);
+            const bootR = box(0.28, 0.17, 0.38, bootM, 0.15, 0.12, 0.07);
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.37, 0.78, 12), M(shirt));
+            body.position.y = 1.0; body.castShadow = true;
+            const collar = box(0.3, 0.12, 0.12, M(0xf0a500), 0, 1.37, 0.04, false);
+            const shoulderL = box(0.22, 0.09, 0.25, M(0xf07818), -0.25, 1.31, 0.02, false);
+            const shoulderR = box(0.22, 0.09, 0.25, M(0xf07818), 0.25, 1.31, 0.02, false);
+            const pocketL = box(0.16, 0.18, 0.045, M(0x3b424c), -0.17, 1.08, 0.19, false);
+            const pocketR = box(0.16, 0.18, 0.045, M(0x3b424c), 0.17, 1.08, 0.19, false);
+            const belt = box(0.62, 0.09, 0.39, M(0x252a31), 0, 0.72, 0);
+            const buckle = box(0.13, 0.11, 0.04, M(0xc4c8cc), 0, 0.72, 0.22, false);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 18, 14), skin);
+            head.scale.set(1.02, 1.08, 0.92); head.position.y = 1.68; head.castShadow = true;
+            const earL = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 8), skin);
+            const earR = earL.clone(); earL.position.set(-0.32, 1.66, 0); earR.position.set(0.32, 1.66, 0);
+            earL.scale.set(0.65, 1, 0.55); earR.scale.copy(earL.scale);
+            const eyeWhite = M(0xfff7ed), iris = M(st.eyes), pupil = M(0x171515), shine = M(0xffffff);
+            for (const x of [-0.12, 0.12]) {
+              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.078, 12, 10), eyeWhite);
+              eye.position.set(x, 1.69, 0.287); eye.scale.set(1, 1.12, 0.5); g.add(eye);
+              const ir = new THREE.Mesh(new THREE.SphereGeometry(0.047, 12, 10), iris);
+              ir.position.set(x + (style % 2 ? 0.008 : 0), 1.685, 0.326); g.add(ir);
+              const pu = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), pupil);
+              pu.position.set(x + (style % 2 ? 0.008 : 0), 1.684, 0.346); g.add(pu);
+              const gl = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), shine);
+              gl.position.set(x - 0.015, 1.707, 0.36); g.add(gl);
+              const browMesh = box(0.16, 0.045, 0.045, brow, x, 1.80 + (x > 0 ? 0.01 : 0), 0.29, false);
+              browMesh.rotation.z = (x > 0 ? -0.12 : 0.12) * (style % 2 ? 1 : -1); g.add(browMesh);
+            }
+            const nose = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), M(st.skin));
+            nose.position.set(0, 1.625, 0.33); nose.scale.set(0.85, 0.7, 0.7); g.add(nose);
+            const smileCurve = new THREE.CatmullRomCurve3([
+              new THREE.Vector3(-0.075, 1.585, 0.305), new THREE.Vector3(0, 1.565, 0.322), new THREE.Vector3(0.075, 1.585, 0.305)
+            ]);
+            const smile = new THREE.Mesh(new THREE.TubeGeometry(smileCurve, 8, 0.009, 5, false), M(0x603b2c)); g.add(smile);
+            const cap = new THREE.Mesh(new THREE.SphereGeometry(0.31, 14, 10), hair);
+            cap.scale.set(1.05, 0.62, 0.94); cap.position.set(0, 1.91, -0.005); g.add(cap);
+            const addHairSpike = (x, y, z, sx, sy, sz, rot = 0) => {
+              const m = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), hair);
+              m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.rotation.z = rot; m.castShadow = true; g.add(m);
+            };
+            if (st.hairType === 0) {
+              addHairSpike(-0.20, 1.94, 0.13, 1.0, 0.75, 0.7, -0.4); addHairSpike(-0.04, 2.02, 0.1, 1.05, 0.8, 0.65, 0.15);
+              addHairSpike(0.16, 1.96, 0.12, 0.9, 0.75, 0.65, 0.5);
+            } else if (st.hairType === 1) {
+              const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.31, 12, 10), M(0x30343b));
+              beanie.scale.set(1.03, 0.72, 0.95); beanie.position.y = 1.97; g.add(beanie);
+              g.add(box(0.34, 0.09, 0.3, M(0xf0a500), 0, 1.82, 0.18, false));
+            } else if (st.hairType === 2) {
+              addHairSpike(-0.13, 1.98, 0.10, 1.0, 0.75, 0.7, -0.2); addHairSpike(0.08, 1.98, 0.12, 0.9, 0.8, 0.7, 0.35);
+              addHairSpike(0.20, 1.90, 0.10, 0.8, 0.6, 0.6, 0.65);
+            } else if (st.hairType === 3) {
+              const band = new THREE.Mesh(new THREE.SphereGeometry(0.31, 12, 10), hair); band.scale.set(1, 0.6, 0.9); band.position.y = 1.92; g.add(band);
+              addHairSpike(-0.16, 1.91, 0.14, 0.9, 0.65, 0.6, -0.3);
+            } else if (st.hairType === 4) {
+              addHairSpike(-0.20, 1.95, 0.11, 1.0, 0.75, 0.7, -0.5); addHairSpike(0.02, 2.02, 0.1, 1.0, 0.75, 0.7, 0.15);
+              addHairSpike(0.19, 1.94, 0.1, 0.85, 0.7, 0.6, 0.55);
+            } else {
+              const shortHair = new THREE.Mesh(new THREE.SphereGeometry(0.30, 12, 10), hair);
+              shortHair.scale.set(1.05, 0.48, 0.95); shortHair.position.set(0, 1.91, -0.01); g.add(shortHair);
+            }
+            if (st.beardType > 0) {
+              const beard = new THREE.Mesh(new THREE.SphereGeometry(st.beardType === 2 ? 0.19 : 0.14, 12, 9), M(st.beard));
+              beard.scale.set(1.25, 0.62, 0.6); beard.position.set(0, 1.49, 0.22); g.add(beard);
+              if (st.beardType === 1) {
+                const moustache = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), M(st.beard));
+                moustache.scale.set(1.7, 0.42, 0.55); moustache.position.set(0, 1.57, 0.29); g.add(moustache);
+              }
+            }
+            const armM = M(shirt);
+            const armL = box(0.17, 0.58, 0.18, armM, -0.44, 1.05, 0.08);
+            const armR = box(0.17, 0.58, 0.18, armM, 0.44, 1.05, 0.08);
+            armL.rotation.z = 0.08; armR.rotation.z = -0.08;
+            armL.rotation.x = armR.rotation.x = -0.55;
+            const handL = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 8), gloveM);
+            const handR = handL.clone(); handL.position.set(-0.45, 0.76, 0.25); handR.position.set(0.45, 0.76, 0.25);
+            g.add(legL, legR, bootL, bootR, body, collar, shoulderL, shoulderR, pocketL, pocketR, belt, buckle, head, earL, earR, armL, armR, handL, handR);
+            if (hat !== null && st.hairType !== 1) {
+              const h = new THREE.Mesh(new THREE.CylinderGeometry(0.29, 0.29, 0.14, 12), M(hat)); h.position.y = 1.91;
+              const v = box(0.34, 0.05, 0.22, M(hat), 0, 1.85, 0.25, false); g.add(h, v);
+            }
+            g.userData = { legL, legR, walk: 0 };
+            scene.add(g);
+            return g;
+          }
+          function animateWalk(p, moving, dt) {
+            const u = p.userData;
+            if (moving) u.walk += dt * 12; else u.walk *= 0.8;
+            const s = Math.sin(u.walk) * (moving ? 0.6 : 0);
+            u.legL.rotation.x = s; u.legR.rotation.x = -s;
+          }
+          function updateStack(p, stack, count) {
+            while (stack.length < count) {
+              const m = new THREE.Mesh(glassGeo, glassMat); m.castShadow = true;
+              m.position.set(0, 1.05 + stack.length * 0.1, 0.62); p.add(m); stack.push(m);
+            }
+            while (stack.length > count) p.remove(stack.pop());
+          }
+          const player = { obj: makePerson(0x252a31, 0x30343b, null, 0), glass: 0, supplies: { repair: 0, tint: 0 }, stack: [], vx: 0, vz: 0 };
+          player.obj.position.set(2, 0, 2);
+          const bays = BAYX.map((x, i) => {
+            const progMat = new THREE.MeshBasicMaterial({ color: 0x48bb78, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide });
+            const b = {
+              i, x, open: false, car: null, stand: 0, incoming: 0, standMeshes: [],
+              progress: 0, lastProgRender: 0, cool: 0.5 + i, mech: null, mechPrep: 0,
+              ring: null, prog: null, progMat, jobReady: false
+            };
+            b.floor = flat(5.6, 6.2, M(0x9a958a), x, 0.03, -7.6); scene.add(b.floor);
+            for (const dx of [-2.4, 2.4]) scene.add(flat(0.15, 5.8, M(0xf0c419), x + dx, 0.04, -7.6));
+            const st = new THREE.Group(); st.position.set(x + 1.7, 0, -4.4);
+            st.add(box(1.1, 0.12, 0.5, M(0x455a64), 0, 0.06, 0), box(0.08, 0.9, 0.08, M(0x455a64), -0.5, 0.45, -0.2), box(0.08, 0.9, 0.08, M(0x455a64), 0.5, 0.45, -0.2));
+            b.standGroup = st; st.visible = false; scene.add(st);
+            return b;
+          });
+          function setStand(b, n) {
+            b.stand = n;
+            while (b.standMeshes.length < n) {
+              const g = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.62, 0.06), glassMat);
+              g.position.set(0, 0.45, -0.1 + b.standMeshes.length * 0.1); g.rotation.x = -0.25; g.castShadow = true;
+              b.standGroup.add(g); b.standMeshes.push(g);
+            }
+            while (b.standMeshes.length > n) b.standGroup.remove(b.standMeshes.pop());
+          }
+          function openBay(b) {
+            b.open = true; b.standGroup.visible = true;
+            b.floor.material.color.set(0x7d8a96);
+            b.ring = ringMesh(1.05, 1.22, 0xffffff, b.x, WORK_Z, 0.8);
+          }
+          function setProgress(b, p) {
+            b.progress = p;
+            if (p <= 0.001) {
+              if (b.prog) { b.prog.visible = false; }
+              b.lastProgRender = 0;
+              return;
+            }
+            if (b.prog && Math.abs(p - b.lastProgRender) < 0.015 && p < 1) return;
+            b.lastProgRender = p;
+            const angle = -Math.PI * 2 * Math.min(1, p);
+            if (!b.prog) {
+              b.prog = new THREE.Mesh(new THREE.RingGeometry(0.7, 1.0, 36, 1, Math.PI / 2, angle), b.progMat);
+              b.prog.rotation.x = -Math.PI / 2;
+              b.prog.position.set(b.x, 0.055, WORK_Z);
+              scene.add(b.prog);
+            } else {
+              b.prog.visible = true;
+              b.prog.geometry.dispose();
+              b.prog.geometry = new THREE.RingGeometry(0.7, 1.0, 36, 1, Math.PI / 2, angle);
+            }
+          }
+          const cars = [];
+          function makeCar(type, color) {
+            const g = new THREE.Group();
+            const body = new THREE.MeshPhysicalMaterial({ color, roughness: 0.35, metalness: 0.65, clearcoat: 1, clearcoatRoughness: 0.08, envMap, envMapIntensity: 1 });
+            const dark = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.92, metalness: 0 });
+            contactShadow(2.6, 4.8, 0, 0, 0.015, g);
+            g.add(roundedBox(1.9, 0.7, 4.2, body, 0, 0.6, 0, 0.16));
+            let cabinW = 1.65, cabinH = 0.62, cabinD = 2.0, cabinZ = -0.35;
+            if (type.name === 'Хэтчбек') { cabinD = 1.72; cabinZ = -0.22; }
+            if (type.name === 'Седан') { cabinD = 1.75; cabinZ = -0.55; g.add(roundedBox(1.55, 0.22, 0.72, body, 0, 0.98, -1.45, 0.07)); }
+            if (type.name === 'Универсал') { cabinD = 2.35; cabinH = 0.68; cabinZ = -0.12; }
+            if (type.name === 'Внедорожник' || type.name === 'Премиум-кроссовер') { cabinW = 1.68; cabinH = 0.76; cabinD = 2.15; cabinZ = -0.25; }
+            if (type.name === 'Купе') { cabinW = 1.58; cabinH = 0.48; cabinD = 1.55; cabinZ = -0.28; }
+            if (type.name === 'Грузовик') {
+              cabinW = 1.52; cabinH = 0.9; cabinD = 1.2; cabinZ = 0.95;
+              g.add(roundedBox(1.8, 0.82, 1.65, body, 0, 0.95, -1.15, 0.12));
+            }
+            g.add(roundedBox(cabinW, cabinH, cabinD, body, 0, 1.25, cabinZ, 0.14));
+            const windowMat = new THREE.MeshPhysicalMaterial({ color: 0x3a4c58, roughness: 0.15, metalness: 0.2, clearcoat: 0.6, envMap, envMapIntensity: 1.3 });
+            const sideWindowLen = Math.max(0.65, cabinD * 0.72);
+            for (const sx of [-1, 1]) {
+              g.add(box(0.035, Math.max(0.22, cabinH * 0.48), sideWindowLen, windowMat, sx * (cabinW / 2 + 0.012), 1.34, cabinZ));
+              g.add(box(0.045, 0.07, 2.7, M(0xeeeeee), sx * 0.955, 0.45, 0, false));
+            }
+            if (type.name === 'Внедорожник' || type.name === 'Премиум-кроссовер') {
+              g.add(box(0.08, 0.08, 3.5, M(0x222831), -0.48, 1.72, cabinZ, false), box(0.08, 0.08, 3.5, M(0x222831), 0.48, 1.72, cabinZ, false));
+            }
+            if (type.name === 'Купе') g.add(box(1.25, 0.12, 0.3, M(0x222831), 0, 1.04, -1.78, false));
+            if (type.name === 'Грузовик') g.add(box(1.5, 0.12, 1.45, M(0xc5cbd1), 0, 1.4, -1.15, false));
+            const wsZ = type.name === 'Грузовик' ? 1.56 : 0.72;
+            const ws = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.85), new THREE.MeshLambertMaterial({ map: crackTex }));
+            ws.position.set(0, 1.22, wsZ); ws.rotation.x = -0.75; g.add(ws);
+            const fxGroup = new THREE.Group();
+            fxGroup.position.set(0, 1.26, wsZ + 0.04);
+            fxGroup.rotation.x = -0.75;
+            fxGroup.visible = false;
+            const uvTool = new THREE.Group();
+            uvTool.add(box(0.24, 0.08, 0.12, M(0x2d3748), 0, 0, 0.05, false));
+            const uvGlowMat = new THREE.MeshBasicMaterial({ color: 0xc084fc, transparent: true, opacity: 0.85 });
+            const uvBulb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), uvGlowMat);
+            uvBulb.position.set(0, 0, 0.08);
+            uvTool.add(uvBulb);
+            const squeegee = box(0.42, 0.16, 0.04, M(0xfacc15), 0, 0, 0.03, false);
+            fxGroup.add(uvTool, squeegee);
+            g.add(fxGroup);
+            const rw = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.6), new THREE.MeshLambertMaterial({ color: 0x334e68 }));
+            rw.position.set(0, 1.25, -1.38); rw.rotation.y = Math.PI; rw.rotation.x = -0.3; g.add(rw);
+            for (const sx of [-1, 1]) for (const sz of [-1.35, 1.35]) {
+              const w = new THREE.Mesh(new THREE.CylinderGeometry(0.39, 0.39, 0.32, 20), dark);
+              w.rotation.z = Math.PI / 2; w.position.set(sx * 0.96, 0.38, sz); w.castShadow = true; g.add(w);
+              const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.235, 0.235, 0.335, 16), M(0xb8c4ce)); rim.rotation.z = Math.PI / 2; rim.position.copy(w.position); rim.castShadow = true; g.add(rim);
+              const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.35, 12), M(0x596675)); hub.rotation.z = Math.PI / 2; hub.position.copy(w.position); g.add(hub);
+              for (let k = 0; k < 5; k++) { const spoke = box(0.025, 0.25, 0.045, M(0xe2e8ef), sx * 0.96, 0.38, sz, false); spoke.rotation.x = k * Math.PI / 5; g.add(spoke); }
+            }
+            g.add(box(1.82, 0.13, 0.14, M(0x333b45), 0, 0.34, 2.08, false), box(1.82, 0.13, 0.14, M(0x333b45), 0, 0.34, -2.08, false));
+            for (const sx of [-1, 1]) { g.add(box(0.22, 0.16, 0.22, body, sx * 0.98, 1.18, 0.65)); g.add(box(0.045, 0.1, 0.13, M(0x7894a8), sx * 1.09, 1.18, 0.65, false)); }
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xfff7c2, emissive: 0xffe599, emissiveIntensity: 0.9, roughness: 0.2 });
+            const tailMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, emissive: 0xff1e1e, emissiveIntensity: 0.25, roughness: 0.3 });
+            g.add(box(0.4, 0.18, 0.06, headMat, -0.6, 0.72, 2.11, false), box(0.4, 0.18, 0.06, headMat, 0.6, 0.72, 2.11, false));
+            g.add(box(0.4, 0.15, 0.06, tailMat, -0.6, 0.72, -2.11, false), box(0.4, 0.15, 0.06, tailMat, 0.6, 0.72, -2.11, false));
+            g.scale.set(type.s[0], type.s[1], type.s[2]);
+            scene.add(g);
+            return { obj: g, ws, wsBaseY: 1.22, wsBaseZ: wsZ, fxGroup, uvTool, uvBulb, squeegee, headMat, tailMat };
+          }
+          function disposeCar(car) {
+            if (!car) return;
+            if (car.sticker && car.sticker.tex) car.sticker.tex.dispose();
+            car.obj.traverse(node => {
+              if (node.geometry && (!node.geometry.userData || !node.geometry.userData.shared)) {
+                node.geometry.dispose();
+              }
+              if (node.material) {
+                const mats = Array.isArray(node.material) ? node.material : [node.material];
+                for (const m of mats) {
+                  if (m && (!m.userData || !m.userData.shared)) {
+                    if (m.map && (!m.map.userData || !m.map.userData.shared)) m.map.dispose();
+                    m.dispose();
+                  }
+                }
+              }
+            });
+            scene.remove(car.obj);
+          }
+          function drawStickerCanvas(canvas, serviceKey, mood, ratio) {
+            const svc = SERVICES[serviceKey] || SERVICES.repair;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = mood === 'angry' ? '#b83232' : mood === 'worry' ? '#bd7b16' : mood === 'happy' ? '#18794e' : '#172334';
+            ctx.beginPath(); ctx.roundRect(8, 8, 496, 156, 34); ctx.fill();
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7; ctx.stroke();
+            ctx.font = 'bold 54px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const icon = mood === 'angry' ? '😡' : mood === 'worry' ? '😟' : mood === 'happy' ? '😊' : svc.icon;
+            ctx.fillText(icon, 70, 74);
+            ctx.font = '900 36px system-ui'; ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff';
+            const labelText = mood === 'angry' ? 'НЕДОВОЛЕН' : mood === 'worry' ? 'ЖДЁТ' : mood === 'happy' ? 'ДОВОЛЕН' : svc.label;
+            ctx.fillText(labelText, 122, 74);
+            if (mood !== 'happy') {
+              ctx.fillStyle = 'rgba(0,0,0,0.45)';
+              ctx.beginPath(); ctx.roundRect(36, 126, 440, 18, 9); ctx.fill();
+              const r = Math.max(0, Math.min(1, ratio));
+              ctx.fillStyle = r > 0.62 ? '#48bb78' : r > 0.28 ? '#ffd166' : '#ff5252';
+              ctx.beginPath(); ctx.roundRect(36, 126, Math.max(16, 440 * r), 18, 9); ctx.fill();
+            }
+          }
+          function serviceSticker(serviceKey, mood = 'service', ratio = 1) {
+            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 172;
+            drawStickerCanvas(canvas, serviceKey, mood, ratio);
+            const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace;
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+            sprite.scale.set(3.25, 1.1, 1); sprite.position.set(0, 3.55, 0); sprite.renderOrder = 20;
+            return { sprite, tex, canvas, mood, step: Math.round(ratio * 20) };
+          }
+          function updateCarSticker(car) {
+            if (!car || !car.sticker) return;
+            const ratio = car.maxPatience > 0 ? car.patience / car.maxPatience : 1;
+            const mood = car.mood === 'happy' ? 'happy' : ratio < 0.28 ? 'angry' : ratio < 0.62 ? 'worry' : 'service';
+            const step = Math.round(ratio * 20);
+            if (mood !== car.mood || step !== car.sticker.step) {
+              const prevMood = car.mood;
+              car.mood = mood;
+              car.sticker.mood = mood;
+              car.sticker.step = step;
+              drawStickerCanvas(car.sticker.canvas, car.service, mood, ratio);
+              car.sticker.tex.needsUpdate = true;
+              if (mood !== prevMood) {
+                if (mood === 'angry') sfx('warning'); else if (mood === 'happy') sfx('happy');
+              }
+            }
+          }
+          function updateCarWorkVisual(car, progress, nowSec) {
+            if (!car) return;
+            if (progress <= 0.001) {
+              car.fxGroup.visible = false;
+              car.ws.position.set(0, car.wsBaseY, car.wsBaseZ);
+              car.ws.rotation.x = -0.75;
+              return;
+            }
+            if (car.service === 'replacement') {
+              car.fxGroup.visible = false;
+              if (progress < 0.5) {
+                const k = progress * 2;
+                car.ws.material.map = crackTex;
+                car.ws.position.y = car.wsBaseY + k * 0.65;
+                car.ws.position.z = car.wsBaseZ + k * 0.25;
+                car.ws.rotation.x = -0.75 - k * 0.35;
+              } else {
+                const k = (1 - progress) * 2;
+                car.ws.material.map = cleanTex;
+                car.ws.position.y = car.wsBaseY + k * 0.65;
+                car.ws.position.z = car.wsBaseZ + k * 0.25;
+                car.ws.rotation.x = -0.75 - k * 0.25;
+              }
+              car.ws.material.needsUpdate = true;
+            } else if (car.service === 'repair') {
+              car.fxGroup.visible = true;
+              car.uvTool.visible = true;
+              car.squeegee.visible = false;
+              car.uvTool.position.set(Math.sin(nowSec * 5) * 0.28, Math.cos(nowSec * 3.5) * 0.12, 0.04);
+              car.uvBulb.scale.setScalar(0.85 + Math.sin(nowSec * 16) * 0.22);
+            } else if (car.service === 'tint') {
+              car.fxGroup.visible = true;
+              car.uvTool.visible = false;
+              car.squeegee.visible = true;
+              car.squeegee.position.set(Math.sin(nowSec * 7) * 0.45, (0.5 - progress) * 0.5, 0.03);
+              car.ws.material.color.setRGB(1 - progress * 0.65, 1 - progress * 0.55, 1 - progress * 0.48);
+            }
+          }
+          function updateToolHud() {
+            const names = { replacement: 'Замена стекла', repair: 'Ремонтный набор', tint: 'Плёнка для тонировки' };
+            const cap = playerCap();
+            document.querySelectorAll('.toolBtn').forEach(b => b.classList.toggle('active', b.dataset.tool === selectedTool));
+            const el = document.getElementById('toolStatus');
+            if (el) el.innerHTML = `Инструмент: ${names[selectedTool]}<small>Склад: ${player.glass}/${cap} стекол · ${player.supplies.repair}/${cap} наборов · ${player.supplies.tint}/${cap} плёнок</small>`;
+          }
+          document.querySelectorAll('.toolBtn').forEach(btn => btn.addEventListener('click', () => { selectedTool = btn.dataset.tool; updateToolHud(); sfx('click'); }));
+          function spawnCar(b) {
+            const lvl = save.unlocked.length;
+            const pool = CAR_TYPES.filter(t => t.need <= lvl);
+            const type = pool[Math.floor(Math.random() * pool.length)];
+            const c = makeCar(type, CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]);
+            const service = SERVICE_KEYS[Math.floor(Math.random() * SERVICE_KEYS.length)];
+            if (service === 'tint') { c.ws.material.map = cleanTex; c.ws.material.needsUpdate = true; }
+            const maxP = Math.max(28, 48 + save.reputation * 0.12 - save.cars * 0.15);
+            const car = {
+              ...c, type, service, bay: b, state: 'arrive',
+              patience: maxP, maxPatience: maxP,
+              path: [{ x: ROAD_X, z: -2 }, { x: ROAD_X, z: LANE_Z }, { x: b.x, z: LANE_Z }, { x: b.x, z: CAR_Z }],
+              pi: 0, rot: Math.PI, sticker: null, mood: 'service', jobStarted: false
+            };
+            car.sticker = serviceSticker(service, 'service', 1);
+            car.obj.add(car.sticker.sprite);
+            car.obj.position.set(ROAD_X, 0, 16); car.obj.rotation.y = Math.PI;
+            b.car = car; b.mechPrep = 0; cars.push(car);
+          }
+          function moveCar(car, dt) {
+            const p = car.path[car.pi]; if (!p) return true;
+            car.tailMat.emissiveIntensity = p.rev ? 1.4 : 0.25;
+            car.headMat.emissiveIntensity = car.state === 'arrive' ? 1.1 : 0.6;
+            const o = car.obj.position, dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz);
+            const sp = 10 * dt;
+            if (d < sp) { o.x = p.x; o.z = p.z; car.pi++; return car.pi >= car.path.length; }
+            o.x += dx / d * sp; o.z += dz / d * sp;
+            let target = Math.atan2(dx, dz); if (p.rev) target += Math.PI;
+            let diff = target - car.obj.rotation.y; diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+            car.obj.rotation.y += diff * Math.min(1, dt * 8);
+            return false;
+          }
+          const pile = [];
+          function pilePos(i) {
+            const layer = Math.floor(i / 8), k = i % 8, c = k % 4, r = Math.floor(k / 4);
+            return new THREE.Vector3(8.6 + c * 0.6, 1.14 + layer * 0.13, 6.75 + r * 0.42);
+          }
+          function addPile(v, from) {
+            const m = new THREE.Mesh(moneyGeo, moneyMat); m.castShadow = true;
+            const idx = pile.length; pile.push({ mesh: m, v });
+            scene.add(m);
+            const to = pilePos(Math.min(idx, 47));
+            fly(m, from.clone(), () => to, 0.6, () => { m.position.copy(to); if (idx >= 48) m.visible = false; }, false);
+          }
+          const flyers = [];
+          function fly(mesh, from, toFn, dur, done, remove = true) {
+            if (!mesh.parent) scene.add(mesh);
+            mesh.position.copy(from);
+            flyers.push({ mesh, from, toFn, t: 0, dur, done, remove });
+          }
+          function updateFlyers(dt) {
+            for (let i = flyers.length - 1; i >= 0; i--) {
+              const f = flyers[i]; f.t += dt / f.dur;
+              const to = f.toFn(), k = Math.min(1, f.t);
+              f.mesh.position.lerpVectors(f.from, to, k);
+              f.mesh.position.y += Math.sin(k * Math.PI) * 1.5;
+              f.mesh.rotation.y += dt * 8;
+              if (f.t >= 1) {
+                if (f.remove) scene.remove(f.mesh);
+                f.done && f.done(); flyers.splice(i, 1);
+              }
+            }
+          }
+          const pops = [];
+          function popup(text, pos, color) {
+            const d = document.createElement('div'); d.className = 'pop'; d.textContent = text;
+            if (color) d.style.color = color;
+            document.body.appendChild(d); pops.push({ d, pos: pos.clone(), t: 0 });
+          }
+          function updatePops(dt) {
+            const v = new THREE.Vector3();
+            for (let i = pops.length - 1; i >= 0; i--) {
+              const p = pops[i]; p.t += dt;
+              v.copy(p.pos); v.y += 2.5 + p.t * 1.5; v.project(camera);
+              p.d.style.left = ((v.x + 1) / 2 * innerWidth) + 'px';
+              p.d.style.top = ((1 - v.y) / 2 * innerHeight) + 'px';
+              p.d.style.opacity = String(Math.max(0, 1 - p.t / 1.2));
+              if (p.t > 1.2) { p.d.remove(); pops.splice(i, 1); }
+            }
+          }
+          function zoneTex(z) {
+            const paid = save.paid[z.id] || 0, left = z.cost - paid;
+            return canvasTex(256, 256, (g, W, H) => {
+              g.fillStyle = 'rgba(20,26,36,0.55)'; g.fillRect(8, 8, W - 16, H - 16);
+              if (paid > 0) { g.fillStyle = 'rgba(72,187,120,0.75)'; const h = (H - 16) * paid / z.cost; g.fillRect(8, H - 8 - h, W - 16, h); }
+              g.setLineDash([22, 14]); g.lineWidth = 8; g.strokeStyle = '#ffffff'; g.strokeRect(8, 8, W - 16, H - 16);
+              g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
+              g.font = '800 40px system-ui,Roboto,sans-serif'; g.fillText(z.name, W / 2, 90);
+              g.fillStyle = '#ffd166'; g.font = '900 56px system-ui,Roboto,sans-serif'; g.fillText(left + ' ₽', W / 2, 160);
+            });
+          }
+          const zoneMeshes = {};
+          function refreshZone(z) {
+            let m = zoneMeshes[z.id];
+            const tex = zoneTex(z);
+            if (!m) {
+              m = flat(2.2, 2.2, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }), z.x, 0.07, z.z);
+              scene.add(m); zoneMeshes[z.id] = m;
+            } else { m.material.map.dispose(); m.material.map = tex; m.material.needsUpdate = true; }
+          }
+          const zoneVisible = z => !has(z.id) && z.req.every(has);
+          function syncZones() {
+            for (const z of ZONES) {
+              const vis = zoneVisible(z);
+              if (vis && !zoneMeshes[z.id]) refreshZone(z);
+              if (!vis && zoneMeshes[z.id]) { scene.remove(zoneMeshes[z.id]); delete zoneMeshes[z.id]; }
+            }
+          }
+          const loaders = [];
+          let cashier = null;
+          function applyUnlock(id, silent) {
+            if (id === 'bay2') openBay(bays[1]);
+            if (id === 'bay3') openBay(bays[2]);
+            if (id.startsWith('loader')) {
+              const o = makePerson(0x1e88e5, 0x263238, 0x1565c0, 1 + loaders.length); o.position.set(WARE.x + 1, 0, 5);
+              loaders.push({ obj: o, glass: 0, stack: [], state: 'toWare', target: null, t: 0 });
+            }
+            if (id.startsWith('mech')) {
+              const b = bays[+id.slice(4) - 1];
+              const o = makePerson(0x2b3038, 0x1b2028, null, 2 + (+id.slice(4))); o.position.set(b.x - 1.1, 0, WORK_Z - 0.7); o.rotation.y = Math.PI * 0.8;
+              b.mech = { obj: o };
+            }
+            if (id === 'cashier') {
+              const o = makePerson(0x5b6472, 0x30343b, null, 4); o.position.set(9.5, 0, 8.1); o.rotation.y = Math.PI;
+              cashier = { obj: o, t: 0 };
+            }
+            if (!silent) {
+              const z = ZONES.find(z => z.id === id);
+              popup('Открыто: ' + z.name, new THREE.Vector3(z.x, 0, z.z), '#7CFC9A');
+              showToast('🏗️', z.name + ' открыт!', 'Мастерская стала больше. Новые возможности доступны.', 'unlock');
+              vibrate(60);
+            }
+          }
+          openBay(bays[0]);
+          save.unlocked.forEach(id => applyUnlock(id, true));
+          syncZones();
+          function walkTo(o, tx, tz, speed, dt) {
+            const p = o.position, dx = tx - p.x, dz = tz - p.z, d = Math.hypot(dx, dz);
+            if (d < 0.08) { animateWalk(o, false, dt); return true; }
+            const s = Math.min(d, speed * dt);
+            p.x += dx / d * s; p.z += dz / d * s;
+            o.rotation.y = Math.atan2(dx, dz);
+            animateWalk(o, true, dt);
+            return d < 0.15;
+          }
+          function bayNeed(b) { return b.open ? (b.car ? 2 : 0) + (3 - b.stand) * 0.5 - (b.stand >= 3 ? 99 : 0) - loaders.filter(l => l.target === b).length * 1.5 : -99; }
+          function updateLoader(L, dt) {
+            const sp = 3.6 * staffMul();
+            L.t -= dt;
+            if (L.state === 'toWare') {
+              if (walkTo(L.obj, WARE.x + 0.4, WARE.z - 0.3, sp, dt)) L.state = 'load';
+            } else if (L.state === 'load') {
+              animateWalk(L.obj, false, dt);
+              const anyNeed = bays.some(b => bayNeed(b) > 0);
+              if (L.t <= 0 && L.glass < 3 && anyNeed) { L.glass++; L.t = 0.3 / staffMul(); updateStack(L.obj, L.stack, L.glass); }
+              if (L.glass >= 3 || (L.glass > 0 && L.t <= 0 && !anyNeed)) {
+                const b = bays.filter(b => b.open).sort((a, c) => bayNeed(c) - bayNeed(a))[0];
+                if (b && bayNeed(b) > -50) { L.target = b; L.state = 'toBay'; }
+              }
+            } else if (L.state === 'toBay') {
+              const b = L.target;
+              if (walkTo(L.obj, b.x + 1.7, WORK_Z - 0.2, sp, dt)) L.state = 'drop';
+            } else if (L.state === 'drop') {
+              animateWalk(L.obj, false, dt);
+              const b = L.target;
+              if (L.t <= 0) {
+                if (L.glass > 0 && b.stand < 3) { L.glass--; setStand(b, b.stand + 1); updateStack(L.obj, L.stack, L.glass); L.t = 0.25; }
+                else {
+                  L.target = null;
+                  const nb = L.glass > 0 ? bays.filter(x => x.open && x.stand < 3).sort((a, c) => bayNeed(c) - bayNeed(a))[0] : null;
+                  if (nb) { L.target = nb; L.state = 'toBay'; } else L.state = 'toWare';
+                }
+              }
+            }
+          }
+          const joy = { on: false, id: null, ox: 0, oy: 0, dx: 0, dy: 0 };
+          const joyEl = document.getElementById('joy'), knob = document.getElementById('knob');
+          let panelOpen = false;
+          renderer.domElement.addEventListener('pointerdown', e => {
+            if (panelOpen || joy.on) return;
+            joy.on = true; joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; joy.dx = joy.dy = 0;
+            joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyEl.style.display = 'block';
+            knob.style.transform = 'translate(0,0)';
+          });
+          addEventListener('pointermove', e => {
+            if (!joy.on || e.pointerId !== joy.id) return;
+            let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy; const d = Math.hypot(dx, dy), R = 50;
+            if (d > R) { dx = dx / d * R; dy = dy / d * R; }
+            joy.dx = dx / R; joy.dy = dy / R;
+            knob.style.transform = `translate(${dx}px,${dy}px)`;
+          });
+          function joyEnd(e) { if (e.pointerId !== joy.id) return; joy.on = false; joy.dx = joy.dy = 0; joyEl.style.display = 'none'; }
+          addEventListener('pointerup', joyEnd); addEventListener('pointercancel', joyEnd);
+          const keys = {};
+          addEventListener('keydown', e => keys[e.code] = true);
+          addEventListener('keyup', e => keys[e.code] = false);
+          function vibrate(ms) {
+            try {
+              if (window.AndroidBridge && typeof window.AndroidBridge.vibrate === 'function') {
+                window.AndroidBridge.vibrate(ms);
+              } else if (navigator.vibrate) {
+                navigator.vibrate(ms);
+              }
+            } catch (e) {}
+          }
+          let audioCtx = null, soundEnabled = true;
+          function playTone(freq, duration = 0.12, type = 'sine', volume = 0.045, delay = 0) {
+            if (!soundEnabled) return;
+            try {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (!AC) return;
+              if (!audioCtx) audioCtx = new AC();
+              if (audioCtx.state === 'suspended') audioCtx.resume();
+              const t = audioCtx.currentTime + delay, osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+              osc.type = type; osc.frequency.setValueAtTime(freq, t);
+              gain.gain.setValueAtTime(0.0001, t);
+              gain.gain.exponentialRampToValueAtTime(volume, t + 0.015);
+              gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+              osc.connect(gain); gain.connect(audioCtx.destination);
+              osc.start(t); osc.stop(t + duration + 0.02);
+            } catch (e) {}
+          }
+          function sfx(name) {
+            if (name === 'upgrade') { playTone(520, .11, 'triangle', .05); playTone(780, .16, 'triangle', .05, .09); playTone(1040, .2, 'sine', .045, .2); }
+            else if (name === 'unlock') { playTone(392, .12, 'triangle', .045); playTone(523, .12, 'triangle', .05, .1); playTone(659, .2, 'triangle', .05, .2); }
+            else if (name === 'cash') { playTone(880, .07, 'sine', .025); playTone(1175, .1, 'sine', .025, .06); }
+            else if (name === 'level') { playTone(440, .15, 'triangle', .055); playTone(660, .15, 'triangle', .055, .12); playTone(880, .25, 'triangle', .06, .24); }
+            else if (name === 'warning') { playTone(260, .18, 'square', .025); playTone(210, .2, 'square', .02, .2); }
+            else if (name === 'click') playTone(420, .055, 'sine', .018);
+            else if (name === 'pickup') { playTone(540, .07, 'triangle', .03); playTone(720, .09, 'triangle', .025, .06); }
+            else if (name === 'happy') { playTone(660, .09, 'sine', .03); playTone(880, .12, 'sine', .03, .08); }
+          }
+          let toastTimer = 0;
+          function showToast(icon, title, sub, sound = 'upgrade') {
+            const el = document.getElementById('toast');
+            if (!el) return;
+            el.querySelector('.icon').textContent = icon;
+            el.querySelector('.title').textContent = title;
+            el.querySelector('.sub').textContent = sub || '';
+            el.classList.remove('show', 'pulse', 'kind-building', 'kind-level', 'kind-tool', 'kind-job');
+            const kind = /открыт|открыто|мастерская стала/i.test(title) ? 'kind-building' : /уровень/i.test(title) ? 'kind-level' : /инструмент|набор|плёнк|стекл/i.test(title) ? 'kind-tool' : /заказ|клиент|ремонт|тониров/i.test(title) ? 'kind-job' : 'pulse';
+            void el.offsetWidth; el.classList.add('show', kind);
+            clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show', 'pulse', 'kind-building', 'kind-level', 'kind-tool', 'kind-job'), 1900);
+            if (sound) sfx(sound);
+          }
+          document.addEventListener('pointerdown', function unlockAudio() {
+            if (!audioCtx) { try { const AC = window.AudioContext || window.webkitAudioContext; if (AC) { audioCtx = new AC(); audioCtx.resume(); } } catch (e) {} }
+          }, { once: true, passive: true });
+          const worldUpgradeProps = new THREE.Group(); scene.add(worldUpgradeProps);
+          function addUpgradeProp(kind, level) {
+            const x = kind === 'work' ? 11.7 : kind === 'staff' ? 5.2 : kind === 'cap' ? -4.8 : kind === 'speed' ? -5.8 : 13.6;
+            const z = kind === 'work' ? -4.1 : kind === 'staff' ? -5.0 : kind === 'cap' ? 7.3 : kind === 'speed' ? 7.1 : 6.4;
+            const group = new THREE.Group(); group.position.set(x, 0, z); worldUpgradeProps.add(group);
+            const metal = M(0x45515d), orange = M(0xf07818), light = M(0xffd166);
+            if (kind === 'work') {
+              group.add(box(0.95, 0.16, 0.55, metal, 0, 0.08, 0));
+              group.add(box(0.12, 1.1, 0.12, metal, -0.35, 0.62, 0), box(0.12, 1.1, 0.12, metal, 0.35, 0.62, 0));
+              group.add(box(0.82, 0.12, 0.18, orange, 0, 1.15, 0));
+              group.add(box(0.2, 0.18, 0.2, light, 0, 1.28, 0));
+            } else if (kind === 'staff') {
+              group.add(box(0.9, 0.12, 0.6, metal, 0, 0.06, 0));
+              for (let i = 0; i < Math.min(5, level + 1); i++) group.add(box(0.12, 0.42, 0.12, orange, -0.32 + i * 0.16, 0.33, 0));
+            } else if (kind === 'cap') {
+              group.add(box(0.8, 0.12, 0.55, metal, 0, 0.06, 0));
+              for (let i = 0; i < Math.min(5, level + 1); i++) group.add(box(0.56, 0.09, 0.42, M(i % 2 ? 0x607d8b : 0x78909c), 0, 0.16 + i * 0.1, 0));
+            } else if (kind === 'speed') {
+              group.add(box(0.72, 0.08, 0.48, metal, 0, 0.05, 0));
+              group.add(box(0.12, 0.42, 0.12, orange, -0.2, 0.27, 0), box(0.12, 0.62, 0.12, orange, 0, 0.37, 0), box(0.12, 0.82, 0.12, orange, 0.2, 0.47, 0));
+            } else {
+              group.add(box(0.85, 0.12, 0.45, metal, 0, 0.06, 0));
+              group.add(box(0.68, 0.5, 0.08, orange, 0, 0.36, 0));
+              group.add(box(0.08, 0.34, 0.05, light, 0, 0.36, 0.06));
+            }
+            group.scale.setScalar(0.72 + level * 0.05);
+            group.userData.kind = kind; group.userData.level = level;
+            for (let i = 0; i < 7; i++) {
+              const spark = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), light);
+              spark.position.set((Math.random() - .5) * 1.2, 0.35 + Math.random() * 1.4, (Math.random() - .5) * 0.8); group.add(spark);
+              spark.userData.spark = true; spark.userData.phase = Math.random() * Math.PI * 2;
+            }
+            return group;
+          }
+          function refreshUpgradeProps(kind) {
+            for (const child of [...worldUpgradeProps.children]) if (child.userData.kind === kind) worldUpgradeProps.remove(child);
+            const level = save.up[kind] || 0;
+            if (level > 0) addUpgradeProp(kind, level);
+          }
+          function animateUpgradeProps(time) {
+            tintCarousel.rotation.y = time * 0.7;
+            for (const group of worldUpgradeProps.children) {
+              group.rotation.y = Math.sin(time * 0.6 + group.userData.level) * 0.025;
+              for (const spark of group.children) if (spark.userData.spark) {
+                spark.position.y = 0.35 + ((time * 0.6 + spark.userData.phase) % 1.4);
+                spark.material.transparent = true; spark.material.opacity = 0.35 + 0.65 * Math.abs(Math.sin(time * 2 + spark.userData.phase));
+              }
+            }
+          }
+          const panel = document.getElementById('panel'), upsEl = document.getElementById('ups');
+          function renderPanel() {
+            const xpNeed = xpForNextLevel();
+            const contractDone = save.cars % 5;
+            const contractReward = 120 + save.level * 30;
+            document.getElementById('progressCard').innerHTML = `<div class="big">Уровень ${save.level} · ${rankName(save.level)}</div><div class="muted">Опыт: ${save.xp} / ${xpNeed} · Выполнено заказов: ${save.cars}</div><div class="contract"><b>Заказ недели</b><br>Выполни ещё ${5 - contractDone} ${carWord(5 - contractDone)} и получи бонус ${contractReward} ₽.<br><span style="color:#ffd166">${contractDone}/5 заказов</span></div><div class="contract"><b>Репутация: ${Math.round(save.reputation)}/100</b><br>${reputationText()}<br>Обслуживай клиентов до жёлтой зоны терпения, чтобы получать +25% чаевых за скорость!</div><div class="muted">Открытые боксы: ${1 + save.unlocked.filter(id => id === 'bay2' || id === 'bay3').length}/3 · Сотрудники: ${save.unlocked.filter(id => id.startsWith('loader') || id.startsWith('mech') || id === 'cashier').length}</div>`;
+            upsEl.innerHTML = UPGS.map(u => {
+              const lv = save.up[u.k], max = lv >= u.max, c = upCost(u);
+              return `<div class="up"><div class="t"><div class="n">${u.name}</div><div class="d">${u.desc}</div>
+                <div class="lv">${'●'.repeat(lv)}${'○'.repeat(u.max - lv)}</div></div>
+                <button data-k="${u.k}" class="${max || save.money < c ? 'no' : ''}">${max ? 'Макс.' : c + ' ₽'}</button></div>`;
+            }).join('');
+          }
+          upsEl.addEventListener('click', e => {
+            const k = e.target.dataset && e.target.dataset.k; if (!k) return;
+            const u = UPGS.find(u => u.k === k), c = upCost(u);
+            if (save.up[k] >= u.max || save.money < c) { vibrate(20); sfx('click'); if (save.money < c) showToast('💰', 'Не хватает денег', `Нужно ещё ${Math.max(0, c - save.money)} ₽`, null); return; }
+            save.money -= c; save.up[k]++; persist(); vibrate(40); refreshUpgradeProps(k);
+            const newLevel = save.up[k];
+            const icons = { speed: '👟', cap: '📦', work: '🛠️', price: '📣', staff: '👨‍🔧' };
+            showToast(icons[k] || '✨', 'Улучшение куплено!', `${u.name}: уровень ${newLevel}/${u.max} · мастерская обновлена`, 'upgrade');
+            popup('УЛУЧШЕНИЕ +' + newLevel, new THREE.Vector3(0, 2.5, 0), '#ffd166');
+            renderPanel(); updateHud(true); updateToolHud();
+          });
+          UPGS.forEach(u => refreshUpgradeProps(u.k));
+          function openPanel(v) { panelOpen = v; panel.style.display = v ? 'flex' : 'none'; if (v) { renderPanel(); joy.on = false; joyEl.style.display = 'none'; } }
+          document.getElementById('upBtn').addEventListener('click', () => openPanel(true));
+          document.getElementById('close').addEventListener('click', () => openPanel(false));
+          document.getElementById('soundBtn').addEventListener('click', e => {
+            soundEnabled = !soundEnabled;
+            e.currentTarget.textContent = soundEnabled ? '🔊 Звуки: включены' : '🔇 Звуки: выключены';
+            if (soundEnabled) sfx('click');
+          });
+          document.getElementById('reset').addEventListener('click', () => {
+            if (confirm('Удалить прогресс и начать заново?')) { try { localStorage.removeItem('steklo3d'); } catch (e) {} location.reload(); }
+          });
+          window.onBack = function () { if (panelOpen) { openPanel(false); return ''; } persist(); return 'exit'; };
+          const moneyEl = document.getElementById('money'), hintEl = document.getElementById('hint'), comboEl = document.getElementById('comboBadge');
+          let shownMoney = save.money;
+          let hudCache = { m: -1, lvl: -1, xp: -1, rep: -1, combo: -1 };
+          function updateHud(force = false) {
+            const mRound = Math.round(shownMoney);
+            if (force || mRound !== hudCache.m) {
+              hudCache.m = mRound;
+              moneyEl.textContent = mRound + ' ₽';
+            }
+            if (force || save.level !== hudCache.lvl || save.xp !== hudCache.xp) {
+              hudCache.lvl = save.level; hudCache.xp = save.xp;
+              const need = xpForNextLevel(), prev = xpForLevel(save.level);
+              document.getElementById('rankTitle').textContent = `Уровень ${save.level} · ${rankName(save.level)}`;
+              document.getElementById('rankXp').textContent = `${Math.max(0, save.xp - prev)} / ${need - prev} опыта`;
+              document.getElementById('rankFill').style.width = `${Math.max(0, Math.min(100, (save.xp - prev) / Math.max(1, need - prev) * 100))}%`;
+            }
+            const repRound = Math.round(save.reputation);
+            if (force || repRound !== hudCache.rep) {
+              hudCache.rep = repRound;
+              document.getElementById('repText').textContent = `Репутация мастерской · ${repRound}/100`;
+              document.getElementById('repFill').style.width = `${save.reputation}%`;
+              document.getElementById('repFill').style.background = save.reputation >= 65 ? '#48bb78' : save.reputation >= 35 ? '#ffd166' : '#e05252';
+            }
+            if (force || fastStreak !== hudCache.combo) {
+              hudCache.combo = fastStreak;
+              if (fastStreak >= 2) {
+                comboEl.style.display = 'inline-block';
+                comboEl.textContent = `🔥 Быстрый сервис ×${fastStreak} (+25% чаевых)`;
+              } else {
+                comboEl.style.display = 'none';
+              }
+            }
+          }
+          function xpForLevel(level) { return Math.round(100 * (level - 1) + 25 * (level - 1) * (level - 2)); }
+          function xpForNextLevel() { return xpForLevel(save.level + 1); }
+          function rankName(level) { return level >= 10 ? 'Легенда сервиса' : level >= 7 ? 'Эксперт' : level >= 5 ? 'Профи' : level >= 3 ? 'Мастер' : level >= 2 ? 'Подмастерье' : 'Новичок'; }
+          function reputationText() { return save.reputation >= 80 ? 'Отличная репутация — клиенты приезжают чаще.' : save.reputation >= 55 ? 'Хорошая репутация — мастерская набирает популярность.' : save.reputation >= 30 ? 'Средняя репутация — старайся обслуживать быстрее.' : 'Плохая репутация — клиенты реже приезжают и платят меньше.'; }
+          function changeReputation(delta) { save.reputation = Math.max(0, Math.min(100, save.reputation + delta)); }
+          function carWord(n) { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? 'заказов' : a === 1 ? 'заказ' : a >= 2 && a <= 4 ? 'заказа' : 'заказов'; }
+          const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.9, 12), new THREE.MeshLambertMaterial({ color: 0xffd166, emissive: 0x7a5200 }));
+          arrow.rotation.x = Math.PI; scene.add(arrow);
+          function objective() {
+            for (const z of ZONES) if (zoneVisible(z) && save.money >= Math.min(z.cost - (save.paid[z.id] || 0), 1) && save.money >= (z.cost - (save.paid[z.id] || 0)) * 0.5)
+              return { x: z.x, z: z.z, text: 'Открой: ' + z.name };
+            if (pile.length && !cashier) return { x: CASH.x, z: CASH.z, text: 'Забери деньги на кассе' };
+            const waiting = bays.filter(b => b.open && b.car && b.car.state === 'wait');
+            const activeJob = waiting.find(b => !b.jobReady && !b.mech);
+            if (activeJob) {
+              const service = activeJob.car.service;
+              if (selectedTool !== service) return { x: player.obj.position.x, z: player.obj.position.z, text: `Выбери инструмент: ${SERVICES[service].name}` };
+              if (service === 'repair' && player.supplies.repair === 0) return { x: WARE.x, z: WARE.z, text: 'Возьми ремонтный набор на складе' };
+              if (service === 'tint' && player.supplies.tint === 0) return { x: WARE.x, z: WARE.z, text: 'Возьми плёнку для тонировки на складе' };
+              if (service === 'replacement' && player.glass === 0 && activeJob.stand === 0) return { x: WARE.x, z: WARE.z, text: 'Возьми новое лобовое стекло на складе' };
+              return { x: activeJob.x, z: WORK_Z, text: `Выполни заказ: ${SERVICES[service].name}` };
+            }
+            const unman = waiting.filter(b => !b.mech);
+            if (player.glass > 0) {
+              const b = unman.find(b => b.stand < 3) || bays.find(b => b.open && b.stand < 3);
+              if (b) return { x: b.x, z: WORK_Z, text: 'Отнеси стекло в бокс' };
+            }
+            const ready = unman.find(b => b.jobReady);
+            if (ready) return { x: ready.x, z: WORK_Z, text: 'Встань у машины — идёт работа' };
+            if (player.glass < playerCap() && (unman.length || bays.some(b => b.open && b.stand === 0)) && !(loaders.length && save.cars > 30))
+              return { x: WARE.x, z: WARE.z, text: 'Возьми материалы на складе' };
+            return null;
+          }
+          let tick = { ware: 0, drop: 0, cash: 0, pay: 0, save: 0, hint: 0 };
+          const v3 = new THREE.Vector3();
+          function inCircle(o, x, z, r) { return Math.hypot(o.position.x - x, o.position.z - z) < r; }
+          function inSquare(o, x, z, h) { return Math.abs(o.position.x - x) < h && Math.abs(o.position.z - z) < h; }
+          function update(dt) {
+            const P = player.obj;
+            const nowSec = performance.now() / 1000;
+            let mx = joy.dx, mz = joy.dy;
+            if (keys.ArrowLeft || keys.KeyA) mx = -1; if (keys.ArrowRight || keys.KeyD) mx = 1;
+            if (keys.ArrowUp || keys.KeyW) mz = -1; if (keys.ArrowDown || keys.KeyS) mz = 1;
+            const ml = Math.hypot(mx, mz);
+            if (ml > 0.1) {
+              const s = playerSpeed() * Math.min(1, ml) * dt;
+              P.position.x += mx / ml * s; P.position.z += mz / ml * s;
+              P.rotation.y = Math.atan2(mx, mz);
+            }
+            animateWalk(P, ml > 0.1, dt);
+            P.position.x = Math.max(BOUNDS.x0, Math.min(BOUNDS.x1, P.position.x));
+            P.position.z = Math.max(BOUNDS.z0, Math.min(BOUNDS.z1, P.position.z));
+            for (const c of [{ x: WARE.x, z: 7.8, hw: 2.1, hd: 0.7 }, { x: 9.5, z: 7.0, hw: 1.7, hd: 0.65 }]) {
+              const dx = P.position.x - c.x, dz = P.position.z - c.z, ox = c.hw + 0.35 - Math.abs(dx), oz = c.hd + 0.35 - Math.abs(dz);
+              if (ox > 0 && oz > 0) { if (ox < oz) P.position.x += Math.sign(dx) * ox; else P.position.z += Math.sign(dz) * oz; }
+            }
+            tick.ware -= dt;
+            const maxCap = playerCap();
+            if (inCircle(P, WARE.x, WARE.z, 1.55) && tick.ware <= 0) {
+              tick.ware = 0.55;
+              if (selectedTool === 'replacement' && player.glass < maxCap) {
+                player.glass++; updateStack(P, player.stack, player.glass); sfx('pickup');
+              } else if (selectedTool === 'repair' && player.supplies.repair < maxCap) {
+                player.supplies.repair++; sfx('pickup');
+              } else if (selectedTool === 'tint' && player.supplies.tint < maxCap) {
+                player.supplies.tint++; sfx('pickup');
+              }
+              updateToolHud();
+            }
+            tick.drop -= dt;
+            for (const b of bays) {
+              if (!b.open) continue;
+              const here = inCircle(P, b.x, WORK_Z, 1.35);
+              if (here && player.glass > 0 && b.stand + b.incoming < 3 && (!b.car || b.car.service !== 'replacement' || b.jobReady) && tick.drop <= 0) {
+                b.incoming++; tick.drop = 0.25; player.glass--; updateStack(P, player.stack, player.glass); updateToolHud();
+                const m = new THREE.Mesh(glassGeo, glassMat);
+                fly(m, P.position.clone().setY(1.5), () => v3.set(b.x + 1.7, 0.6, -4.4), 0.25, () => {
+                  b.incoming--; setStand(b, Math.min(3, b.stand + 1));
+                });
+              }
+              if (here && b.car && b.car.state === 'wait' && !b.jobReady && tick.drop <= 0) {
+                const needed = b.car.service;
+                if (needed === selectedTool) {
+                  if (needed === 'replacement' && b.stand > 0) {
+                    b.jobReady = true; tick.drop = 0.4;
+                  } else if (needed === 'replacement' && player.glass > 0 && b.stand + b.incoming < 3) {
+                    b.incoming++; tick.drop = 0.25; player.glass--; updateStack(P, player.stack, player.glass); updateToolHud();
+                    const m = new THREE.Mesh(glassGeo, glassMat);
+                    fly(m, P.position.clone().setY(1.5), () => v3.set(b.x + 1.7, 0.6, -4.4), 0.25, () => {
+                      b.incoming--; setStand(b, Math.min(3, b.stand + 1)); b.jobReady = true;
+                    });
+                  } else if (needed === 'repair' && player.supplies.repair > 0) {
+                    player.supplies.repair--; b.jobReady = true; tick.drop = 0.5; updateToolHud();
+                  } else if (needed === 'tint' && player.supplies.tint > 0) {
+                    player.supplies.tint--; b.jobReady = true; tick.drop = 0.5; updateToolHud();
+                  }
+                } else if (tick.drop <= 0) {
+                  tick.drop = 0.5;
+                  hintEl.textContent = `Нужен инструмент: ${SERVICES[needed].name}`;
+                  hintEl.style.opacity = '1';
+                }
+              }
+              if (b.mech && b.car && b.car.state === 'wait' && !b.jobReady) {
+                const needed = b.car.service;
+                if (needed === 'replacement') {
+                  if (b.stand > 0) b.jobReady = true;
+                } else {
+                  b.mechPrep = (b.mechPrep || 0) + dt * staffMul();
+                  animateWalk(b.mech.obj, true, dt * 0.4);
+                  if (b.mechPrep >= 1.1) { b.jobReady = true; b.mechPrep = 0; }
+                }
+              }
+              if (b.ring) b.ring.material.color.set(here ? 0xffd166 : 0xffffff);
+              if (!b.car) { b.cool -= dt; if (b.cool <= 0) spawnCar(b); }
+              const car = b.car;
+              if (car && car.state === 'wait') {
+                car.patience -= dt;
+                updateCarSticker(car);
+                if (car.sticker) car.sticker.sprite.position.y = 3.45 + Math.sin(nowSec * 2.8 + b.i) * 0.08;
+                if (car.patience <= 0) { customerLeaves(b, car); continue; }
+                const workers = (here ? 1 : 0) + (b.mech ? staffMul() * 0.9 : 0);
+                if (b.jobReady && workers > 0) {
+                  setProgress(b, b.progress + dt * workers / workTime());
+                  updateCarWorkVisual(car, b.progress, nowSec);
+                  if (b.mech) animateWalk(b.mech.obj, true, dt * 0.5);
+                  if (b.progress >= 1) finishCar(b);
+                }
+              }
+            }
+            for (let i = cars.length - 1; i >= 0; i--) {
+              const c = cars[i];
+              if (c.state === 'arrive') {
+                if (moveCar(c, dt)) {
+                  c.state = 'wait'; c.obj.rotation.y = 0;
+                  c.patience = 55 + save.reputation * 0.2; c.maxPatience = c.patience;
+                }
+              } else if (c.state === 'leave') {
+                if (moveCar(c, dt)) {
+                  disposeCar(c);
+                  cars.splice(i, 1);
+                }
+              }
+            }
+            tick.cash -= dt;
+            if (tick.cash < -0.15) tick.cash = -0.15;
+            while (pile.length && inCircle(P, CASH.x, CASH.z, 1.4) && tick.cash <= 0) {
+              tick.cash += 0.04; takeMoney(P.position);
+            }
+            if (cashier && pile.length) {
+              cashier.t -= dt;
+              if (cashier.t <= 0) { cashier.t = 0.22 / staffMul(); takeMoney(cashier.obj.position); }
+            }
+            tick.pay -= dt;
+            for (const z of ZONES) {
+              if (!zoneVisible(z) || !inSquare(P, z.x, z.z, 1.1)) continue;
+              if (tick.pay < -0.15) tick.pay = -0.15;
+              while (save.money >= 1 && tick.pay <= 0) {
+                tick.pay += 0.035;
+                const left = z.cost - (save.paid[z.id] || 0);
+                const step = Math.min(left, Math.max(1, Math.ceil(z.cost / 45)), Math.floor(save.money));
+                if (step <= 0) break;
+                save.money -= step; shownMoney = Math.min(shownMoney, save.money);
+                save.paid[z.id] = (save.paid[z.id] || 0) + step;
+                fly(new THREE.Mesh(moneyGeo, moneyMat), P.position.clone().setY(1.6), () => v3.set(z.x, 0.1, z.z), 0.3);
+                if (save.paid[z.id] >= z.cost) {
+                  save.unlocked.push(z.id); delete save.paid[z.id];
+                  scene.remove(zoneMeshes[z.id]); delete zoneMeshes[z.id];
+                  applyUnlock(z.id, false); syncZones(); persist();
+                  tick.pay = 0.6; break;
+                } else refreshZone(z);
+              }
+            }
+            loaders.forEach(L => updateLoader(L, dt));
+            const ob = objective();
+            tick.hint -= dt;
+            if (ob && save.unlocked.length < 3) {
+              arrow.visible = true; arrow.position.set(ob.x, 2.6 + Math.sin(nowSec * 5) * 0.3, ob.z);
+            } else arrow.visible = false;
+            if (tick.hint <= 0) {
+              tick.hint = 0.3;
+              const waitingCar = bays.find(b => b.open && b.car && b.car.state === 'wait');
+              const txt = waitingCar ? '' : (ob && save.cars < 25 ? ob.text : '');
+              hintEl.textContent = txt; hintEl.style.opacity = txt ? '1' : '0';
+            }
+            if (shownMoney < save.money) shownMoney = Math.min(save.money, shownMoney + Math.max(1, (save.money - shownMoney) * dt * 8));
+            else shownMoney = save.money;
+            updateHud();
+            tick.save -= dt;
+            if (tick.save <= 0) { tick.save = 5; persist(); }
+          }
+          function finishCar(b) {
+            const car = b.car;
+            setProgress(b, 0);
+            updateCarWorkVisual(car, 0, 0);
+            if (car.service === 'replacement') setStand(b, Math.max(0, b.stand - 1));
+            b.jobReady = false; b.mechPrep = 0;
+            car.ws.material.map = car.service === 'tint' ? null : cleanTex;
+            if (car.service === 'tint') {
+              car.ws.material.color.set(0x1f3647);
+              car.ws.material.transparent = true;
+              car.ws.material.opacity = 0.88;
+            } else {
+              car.ws.material.color.set(0xffffff);
+              car.ws.material.transparent = false;
+              car.ws.material.opacity = 1;
+            }
+            car.ws.material.needsUpdate = true;
+            const fastRatio = car.maxPatience > 0 ? car.patience / car.maxPatience : 0;
+            let fastBonus = 1;
+            if (fastRatio >= 0.7) {
+              fastStreak++;
+              fastBonus = 1.25;
+            } else {
+              fastStreak = 0;
+            }
+            const price = Math.round(car.type.price * SERVICES[car.service].price * priceMul() * fastBonus);
+            car.mood = 'happy';
+            updateCarSticker(car);
+            const n = Math.min(8, Math.max(3, Math.round(price / 15))), v = Math.floor(price / n), rest = price - v * n;
+            const from = car.obj.position.clone().setY(1.6);
+            for (let i = 0; i < n; i++) setTimeout(() => addPile(v + (i === 0 ? rest : 0), from), i * 70);
+            if (fastBonus > 1) {
+              popup(`+${price} ₽ (⚡Чаевые +25%)`, car.obj.position, '#ffe066');
+            } else {
+              popup('+' + price + ' ₽', car.obj.position);
+            }
+            sfx('cash');
+            save.cars++;
+            changeReputation(fastBonus > 1 ? 3 : 2);
+            save.xp = (save.xp || 0) + (fastBonus > 1 ? 35 : 30);
+            let leveled = false;
+            while (save.xp >= xpForNextLevel()) {
+              save.level++;
+              const bonus = 100 + save.level * 50;
+              save.money += bonus;
+              popup('УРОВЕНЬ ' + save.level + '! +' + bonus + ' ₽', new THREE.Vector3(car.obj.position.x, 2.8, car.obj.position.z), '#7CFC9A');
+              showToast('🏆', 'Новый уровень!', `${rankName(save.level)} · бонус ${bonus} ₽`, 'level');
+              leveled = true;
+            }
+            if (save.cars > 0 && save.cars % 5 === 0 && save.contractClaimed < save.cars / 5) {
+              save.contractClaimed = save.cars / 5;
+              const reward = 120 + save.level * 30;
+              save.money += reward;
+              popup('ЗАКАЗ НЕДЕЛИ +' + reward + ' ₽', new THREE.Vector3(car.obj.position.x, 3.4, car.obj.position.z), '#ffd166');
+            }
+            if (leveled && panelOpen) renderPanel();
+            persist(); updateHud(); if (panelOpen) renderPanel();
+            car.state = 'leave';
+            car.path = [{ x: b.x, z: LANE_Z, rev: true }, { x: 30, z: LANE_Z }]; car.pi = 0;
+            b.car = null; b.jobReady = false; b.cool = Math.max(1.2, 4.5 - save.reputation * 0.025) + Math.random() * 1.5;
+            vibrate(35);
+          }
+          function customerLeaves(b, car) {
+            fastStreak = 0;
+            setProgress(b, 0);
+            updateCarWorkVisual(car, 0, 0);
+            changeReputation(-8);
+            popup('Клиент уехал! Репутация −8', new THREE.Vector3(car.obj.position.x, 3.0, car.obj.position.z), '#ff7070');
+            sfx('warning');
+            car.state = 'leave';
+            car.path = [{ x: b.x, z: LANE_Z, rev: true }, { x: 30, z: LANE_Z }];
+            car.pi = 0;
+            b.car = null; b.jobReady = false; b.mechPrep = 0; b.cool = 2.5 + Math.random() * 2;
+            persist(); updateHud(); if (panelOpen) renderPanel(); vibrate(90);
+          }
+          function takeMoney(to) {
+            const item = pile.pop(); if (!item) return;
+            save.money += item.v;
+            const m = item.mesh; m.visible = true;
+            const fi = flyers.findIndex(f => f.mesh === m); if (fi >= 0) flyers.splice(fi, 1);
+            fly(m, m.position.clone(), () => v3.copy(to).setY(1.4), 0.25);
+          }
+          function resize() {
+            renderer.setSize(innerWidth, innerHeight);
+            camera.aspect = innerWidth / innerHeight;
+            camera.fov = camera.aspect < 1.1 ? 58 : 44;
+            camera.updateProjectionMatrix();
+          }
+          addEventListener('resize', resize); resize();
+          const camPos = new THREE.Vector3();
+          function updateCamera(dt, snap) {
+            const p = player.obj.position;
+            const k = camera.aspect < 1.1 ? 1.45 : 1.28;
+            const tx = p.x + 2.5 * k, ty = 15 * k, tz = p.z + 11 * k;
+            if (snap) camPos.set(tx, ty, tz); else camPos.lerp(v3.set(tx, ty, tz), Math.min(1, dt * 5));
+            camera.position.copy(camPos);
+            camera.lookAt(camPos.x - 2.5 * k, 0, camPos.z - 11 * k);
+            sun.position.set(p.x + 8, 20, p.z + 6); sun.target.position.set(p.x, 0, p.z);
+            fill.position.set(p.x - 10, 9, p.z - 8); fill.target.position.set(p.x, 0, p.z);
+          }
+          updateCamera(0, true);
+          let last = performance.now();
+          const TIME_SCALE = +(new URLSearchParams(location.search).get('ts') || 1);
+          function frame(now) {
+            const dt = Math.min(0.05, (now - last) / 1000) * TIME_SCALE; last = now;
+            if (!panelOpen) update(dt);
+            updateFlyers(dt);
+            updateCamera(dt);
+            renderer.render(scene, camera);
+            updatePops(dt);
+            animateUpgradeProps(now / 1000);
+            requestAnimationFrame(frame);
+          }
+          updateHud(true); updateToolHud();
+          requestAnimationFrame(frame);
+          document.addEventListener('visibilitychange', () => { if (document.hidden) persist(); });
+          window.__game = { save, player, bays, cars, pile, loaders };
+          </script>
+          </body>
+          </html>
+          EOF_HTML
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Размеры ключевых файлов проекта:"
+          echo "Проверка записанных файлов:"
           ls -lh "$PROJECT_DIR/app/src/main/assets/index.html" "$PROJECT_DIR/app/src/main/assets/three.min.js" "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
 
       - name: Set up Java
@@ -198,29 +1550,18 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build APK and verify classes
+      - name: Build APK
         shell: bash
         run: |
           cd "$PROJECT_DIR"
-
           if [ -n "$ANDROID_HOME" ] && [ ! -f "local.properties" ]; then
             echo "sdk.dir=$ANDROID_HOME" > local.properties
           fi
-
           if [ -f "gradle.properties" ] && ! grep -q "android.useAndroidX" gradle.properties; then
             echo "" >> gradle.properties
             echo "android.useAndroidX=true" >> gradle.properties
           fi
-
           gradle clean assembleDebug --stacktrace
-
-          # Проверяем, что MainActivity.class реально скомпилировался
-          CLASS_FILE="$(find app/build -name 'MainActivity.class' | head -n 1)"
-          if [ -z "$CLASS_FILE" ]; then
-            echo "ОШИБКА: MainActivity.class не найден после компиляции!"
-            exit 1
-          fi
-          echo "Успешно скомпилирован класс: $CLASS_FILE"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
