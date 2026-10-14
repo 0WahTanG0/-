@@ -15,12 +15,11 @@ jobs:
       - name: Install unzip
         run: sudo apt-get update && sudo apt-get install -y unzip
 
-      - name: Extract game archive and sync updated files
+      - name: Extract game archive and fix project structure
         shell: bash
         run: |
           mkdir -p game
 
-          # Ищем steklo-v3.1-graphics.zip или любой другой .zip архив в репозитории
           if [ -f "steklo-v3.1-graphics.zip" ]; then
             ZIP_FILE="steklo-v3.1-graphics.zip"
           else
@@ -31,37 +30,162 @@ jobs:
             echo "Распаковка архива: $ZIP_FILE"
             unzip -o "$ZIP_FILE" -d game
           else
-            echo "ZIP-архив не найден, копируем файлы репозитория напрямую..."
+            echo "ZIP не найден, копируем файлы репозитория..."
             rsync -a --exclude='game' --exclude='.git' ./ game/
           fi
 
-          # Находим корень Android-проекта по settings.gradle
           PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
-
           if [ -z "$PROJECT_DIR" ]; then
-            echo "ОШИБКА: не найден settings.gradle внутри архива"
+            echo "ОШИБКА: не найден settings.gradle"
             exit 1
           fi
 
-          # Если обновленные index.html или MainActivity.java лежат отдельно в репозитории,
-          # автоматически подменяем ими старые файлы из архива
-          NEW_HTML="$(find . -maxdepth 3 -path './game' -prune -o -type f -name 'index.html' -print | head -n 1)"
-          if [ -n "$NEW_HTML" ]; then
-            echo "Найден обновленный index.html ($NEW_HTML), копируем в проект..."
-            mkdir -p "$PROJECT_DIR/app/src/main/assets"
-            cp -f "$NEW_HTML" "$PROJECT_DIR/app/src/main/assets/index.html"
+          mkdir -p "$PROJECT_DIR/app/src/main/assets"
+          mkdir -p "$PROJECT_DIR/app/src/main/java/ru/steklo/game"
+
+          # Если обновленный index.html лежит в корне репозитория или в корне архива, переноcим его в assets
+          for CANDIDATE in "./index.html" "game/index.html" "$PROJECT_DIR/index.html"; do
+            if [ -s "$CANDIDATE" ]; then
+              echo "Найден обновленный index.html ($CANDIDATE), копируем в assets..."
+              cp -f "$CANDIDATE" "$PROJECT_DIR/app/src/main/assets/index.html"
+            fi
+          done
+
+          # Проверяем, что index.html и three.min.js не пустые
+          if [ ! -s "$PROJECT_DIR/app/src/main/assets/index.html" ]; then
+            echo "ОШИБКА: файл app/src/main/assets/index.html отсутствует или пустой (0 байт)!"
+            exit 1
+          fi
+          if [ ! -s "$PROJECT_DIR/app/src/main/assets/three.min.js" ]; then
+            echo "ОШИБКА: файл app/src/main/assets/three.min.js отсутствует или пустой!"
+            exit 1
           fi
 
-          NEW_JAVA="$(find . -maxdepth 3 -path './game' -prune -o -type f -name 'MainActivity.java' -print | head -n 1)"
-          if [ -n "$NEW_JAVA" ]; then
-            echo "Найден обновленный MainActivity.java ($NEW_JAVA), копируем в проект..."
-            mkdir -p "$PROJECT_DIR/app/src/main/java/ru/steklo/game"
-            cp -f "$NEW_JAVA" "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
-          fi
+          # Записываем гарантированно рабочий MainActivity.java по точному пути пакета
+          cat << 'EOF' > "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
+          package ru.steklo.game;
+
+          import android.app.Activity;
+          import android.content.Context;
+          import android.os.Build;
+          import android.os.Bundle;
+          import android.os.VibrationEffect;
+          import android.os.Vibrator;
+          import android.view.View;
+          import android.view.Window;
+          import android.view.WindowManager;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+
+          public class MainActivity extends Activity {
+              private WebView web;
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  requestWindowFeature(Window.FEATURE_NO_TITLE);
+                  getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                  web = new WebView(this);
+                  WebSettings s = web.getSettings();
+                  s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setAllowFileAccess(true);
+                  s.setAllowFileAccessFromFileURLs(true);
+                  s.setAllowUniversalAccessFromFileURLs(true);
+                  s.setMediaPlaybackRequiresUserGesture(false);
+
+                  web.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
+                  web.setWebViewClient(new WebViewClient());
+                  web.setWebChromeClient(new WebChromeClient());
+                  web.setOverScrollMode(View.OVER_SCROLL_NEVER);
+                  web.setBackgroundColor(0xFF1B2330);
+                  setContentView(web);
+                  hideBars();
+
+                  web.loadUrl("file:///android_asset/index.html");
+              }
+
+              public static class AndroidBridge {
+                  private final Context ctx;
+
+                  public AndroidBridge(Context ctx) {
+                      this.ctx = ctx;
+                  }
+
+                  @JavascriptInterface
+                  public void vibrate(int ms) {
+                      try {
+                          Vibrator v = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
+                          if (v != null && v.hasVibrator()) {
+                              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                  v.vibrate(VibrationEffect.createOneShot(Math.max(10, ms), VibrationEffect.DEFAULT_AMPLITUDE));
+                              } else {
+                                  v.vibrate(Math.max(10, ms));
+                              }
+                          }
+                      } catch (Exception ignored) {
+                      }
+                  }
+              }
+
+              private void hideBars() {
+                  getWindow().getDecorView().setSystemUiVisibility(
+                          View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                  | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                  | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                  | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                  | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                  | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+              }
+
+              @Override
+              public void onWindowFocusChanged(boolean hasFocus) {
+                  super.onWindowFocusChanged(hasFocus);
+                  if (hasFocus) hideBars();
+              }
+
+              @Override
+              public void onBackPressed() {
+                  if (web != null) {
+                      web.evaluateJavascript("window.onBack ? window.onBack() : 'exit'", value -> {
+                          if (value != null && value.contains("exit")) finish();
+                      });
+                  } else {
+                      super.onBackPressed();
+                  }
+              }
+
+              @Override
+              protected void onPause() {
+                  super.onPause();
+                  if (web != null) web.onPause();
+              }
+
+              @Override
+              protected void onResume() {
+                  super.onResume();
+                  if (web != null) web.onResume();
+              }
+
+              @Override
+              protected void onDestroy() {
+                  if (web != null) {
+                      web.loadUrl("about:blank");
+                      web.destroy();
+                      web = null;
+                  }
+                  super.onDestroy();
+              }
+          }
+          EOF
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Готовый проект в папке: $PROJECT_DIR"
-          find "$PROJECT_DIR" -maxdepth 4 -type f
+          echo "Размеры ключевых файлов проекта:"
+          ls -lh "$PROJECT_DIR/app/src/main/assets/index.html" "$PROJECT_DIR/app/src/main/assets/three.min.js" "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -74,23 +198,29 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build APK
+      - name: Build APK and verify classes
         shell: bash
         run: |
           cd "$PROJECT_DIR"
 
-          # Указываем путь к Android SDK, если нет local.properties
           if [ -n "$ANDROID_HOME" ] && [ ! -f "local.properties" ]; then
             echo "sdk.dir=$ANDROID_HOME" > local.properties
           fi
 
-          # Гарантируем наличие флага AndroidX в gradle.properties
           if [ -f "gradle.properties" ] && ! grep -q "android.useAndroidX" gradle.properties; then
             echo "" >> gradle.properties
             echo "android.useAndroidX=true" >> gradle.properties
           fi
 
-          gradle assembleDebug --stacktrace
+          gradle clean assembleDebug --stacktrace
+
+          # Проверяем, что MainActivity.class реально скомпилировался
+          CLASS_FILE="$(find app/build -name 'MainActivity.class' | head -n 1)"
+          if [ -z "$CLASS_FILE" ]; then
+            echo "ОШИБКА: MainActivity.class не найден после компиляции!"
+            exit 1
+          fi
+          echo "Успешно скомпилирован класс: $CLASS_FILE"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
