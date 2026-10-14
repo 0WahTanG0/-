@@ -1,67 +1,177 @@
-name: Build Steklo APK
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Автостёкла Тайкун</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#e2c499;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,Roboto,sans-serif}
+canvas{display:block}
+#hud{position:fixed;left:0;right:0;top:0;padding:12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:5}
+.badge{background:rgba(30,35,45,0.88);color:#ffd166;font-weight:900;font-size:16px;padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,0.25)}
+#upBtn{pointer-events:auto;background:linear-gradient(135deg,#ffaa00,#ff7700);color:#fff;border:0;font-weight:900;font-size:16px;padding:12px 20px;border-radius:22px;box-shadow:0 5px 0 #b35200,0 8px 20px rgba(0,0,0,0.3);transition:transform 0.1s}
+#upBtn:active{transform:scale(0.95);box-shadow:0 2px 0 #b35200}
+#toolPanel{position:fixed;right:14px;bottom:20px;z-index:7;display:flex;flex-direction:column;gap:10px;pointer-events:auto}
+.toolBtn{border:none;border-radius:18px;background:rgba(40,48,60,0.92);color:#fff;padding:12px 16px;font-size:14px;font-weight:900;box-shadow:0 5px 0 rgba(0,0,0,0.4),0 8px 16px rgba(0,0,0,0.2);white-space:nowrap;transition:transform 0.1s,background 0.1s}
+.toolBtn.active{background:linear-gradient(135deg,#2ecc71,#27ae60);box-shadow:0 5px 0 #1e8449,0 8px 16px rgba(0,0,0,0.2);transform:scale(1.05)}
+#toolStatus{position:fixed;left:14px;bottom:20px;z-index:7;background:rgba(30,35,45,0.9);color:#fff;border-radius:16px;padding:10px 14px;font-size:13px;font-weight:800;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,0.25)}
+#toolStatus small{display:block;color:#a0aec0;font-weight:600;margin-top:2px}
+#hint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(30,35,45,0.85);color:#fff;font-weight:800;font-size:14px;padding:8px 18px;border-radius:16px;pointer-events:none;z-index:5;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+#joy{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,0.2);border:3px solid rgba(255,255,255,0.6);display:none;pointer-events:none;z-index:6}
+#knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(255,255,255,0.9)}
+#panel{position:fixed;inset:0;background:rgba(15,20,30,0.7);display:none;align-items:center;justify-content:center;z-index:10}
+#panel .box{background:#232d3f;border-radius:24px;padding:20px;width:min(90vw,380px);color:#fff;box-shadow:0 12px 36px rgba(0,0,0,0.4)}
+#panel h2{margin:0 0 14px;font-size:22px;text-align:center;color:#ffd166}
+.up{display:flex;align-items:center;gap:12px;background:#2c384c;border-radius:16px;padding:12px;margin-bottom:10px}
+.up .t{flex:1}.up .n{font-weight:900;font-size:15px}.up .d{font-size:12px;color:#a0aec0;margin-top:2px}
+.up button{border:0;border-radius:14px;padding:10px 14px;font-weight:900;font-size:14px;background:#ffd166;color:#1b2330;box-shadow:0 3px 0 #b38f00}
+.up button.no{background:#4a5568;color:#a0aec0;box-shadow:0 3px 0 #2d3748}
+#close{display:block;width:100%;margin-top:10px;border:0;border-radius:16px;padding:12px;font-weight:900;font-size:16px;background:#4a5568;color:#fff}
+.pop{position:fixed;font-weight:900;font-size:24px;color:#ffd166;text-shadow:0 2px 0 #7a5200,0 0 8px rgba(0,0,0,0.4);pointer-events:none;z-index:4;transform:translate(-50%,-50%)}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div class="badge" id="money">0 ₽</div>
+  <button id="upBtn">⬆ Развитие</button>
+</div>
+<div id="hint"></div>
+<div id="joy"><div id="knob"></div></div>
+<div id="toolStatus">Инструмент: Замена<small>Склад: 0 стекол</small></div>
+<div id="toolPanel">
+  <button class="toolBtn active" data-tool="replacement">🪟 Замена</button>
+  <button class="toolBtn" data-tool="repair">🛠 Ремонт</button>
+  <button class="toolBtn" data-tool="tint">🎞 Тонировка</button>
+</div>
+<div id="panel">
+  <div class="box">
+    <h2>Развитие мастерской</h2>
+    <div id="ups"></div>
+    <button id="close">Закрыть</button>
+  </div>
+</div>
+<script src="three.min.js"></script>
+<script>
+'use strict';
+const BAYX = [-2, 3.5];
+const WARE = { x: -3.5, z: 5 };
+const CASH = { x: 3.5, z: 5 };
 
-on:
-  workflow_dispatch:
-  push:
+let save = { money: 0, up: { speed: 0, cap: 0, work: 0 } };
+try { const s = JSON.parse(localStorage.getItem('steklo_lite') || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
+function persist() { try { localStorage.setItem('steklo_lite', JSON.stringify(save)); } catch (e) {} }
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
 
-    steps:
-      - name: Download repository
-        uses: actions/checkout@v4
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xd9b38c); // Теплый песчаный тон
+scene.fog = new THREE.Fog(0xd9b38c, 25, 60);
 
-      - name: Install unzip
-        run: sudo apt-get update && sudo apt-get install -y unzip
+const camera = new THREE.PerspectiveCamera(45, 1, 0.5, 100);
 
-      - name: Extract game archive
-        shell: bash
-        run: |
-          mkdir -p game
-          if [ -f "steklo-v3.1-graphics.zip" ]; then
-            ZIP_FILE="steklo-v3.1-graphics.zip"
-          else
-            ZIP_FILE="$(find . -maxdepth 2 -type f -name '*.zip' | head -n 1)"
-          fi
-          echo "Распаковка архива: $ZIP_FILE"
-          unzip -o "$ZIP_FILE" -d game
+scene.add(new THREE.HemisphereLight(0xfff5e6, 0x5e4534, 1.2));
+const sun = new THREE.DirectionalLight(0xfffaed, 1.8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 40 });
+scene.add(sun);
 
-          PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "ОШИБКА: не найден settings.gradle"
-            exit 1
-          fi
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Проект успешно найден в: $PROJECT_DIR"
+const M = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.8 });
+const box = (w, h, d, mat, x=0, y=0, z=0) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+};
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+// Земля и площадка сервиса
+box(50, 0.2, 50, M(0xc89d68), 0, -0.1, 0);
+box(14, 0.25, 12, M(0x4a5568), 0, 0, -1);
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
+// Зона склада и кассы
+box(2.2, 0.8, 1.2, M(0x2d3748), WARE.x, 0.4, WARE.z);
+box(2.2, 0.9, 1.2, M(0x8d5a3b), CASH.x, 0.45, CASH.z);
 
-      - name: Build APK
-        shell: bash
-        run: |
-          cd "$PROJECT_DIR"
-          if [ -n "$ANDROID_HOME" ] && [ ! -f "local.properties" ]; then
-            echo "sdk.dir=$ANDROID_HOME" > local.properties
-          fi
-          if [ -f "gradle.properties" ] && ! grep -q "android.useAndroidX" gradle.properties; then
-            echo "" >> gradle.properties
-            echo "android.useAndroidX=true" >> gradle.properties
-          fi
-          gradle clean assembleDebug --stacktrace
+// Игрок с пропорциональным телом (без гигантской головы)
+const playerGroup = new THREE.Group();
+const bodyM = M(0x3182ce), skinM = M(0xf6ad55), capM = M(0xe53e3e);
+const pBody = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.6, 0.25), bodyM); pBody.position.y = 0.5; pBody.castShadow = true;
+const pHead = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), skinM); pHead.position.y = 0.95; pHead.castShadow = true;
+const pCap = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.12, 0.34), capM); pCap.position.set(0, 1.12, 0.03);
+playerGroup.add(pBody, pHead, pCap);
+playerGroup.position.set(0, 0, 2);
+scene.add(playerGroup);
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Steklo-APK
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+// Машина в боксе
+const carGroup = new THREE.Group();
+const carBody = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.7, 3.2), M(0x319795)); carBody.position.y = 0.5; carBody.castShadow = true;
+const carCabin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.55, 1.6), M(0x2b6cb0)); carCabin.position.set(0, 1.0, -0.2); carCabin.castShadow = true;
+carGroup.add(carBody, carCabin);
+carGroup.position.set(0, 0, -3.5);
+scene.add(carGroup);
+
+// Управление
+let joy = { on: false, id: null, ox: 0, oy: 0, dx: 0, dy: 0 };
+const joyEl = document.getElementById('joy'), knob = document.getElementById('knob');
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (joy.on) return;
+  joy.on = true; joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; joy.dx = joy.dy = 0;
+  joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyEl.style.display = 'block';
+  knob.style.transform = 'translate(0,0)';
+});
+addEventListener('pointermove', e => {
+  if (!joy.on || e.pointerId !== joy.id) return;
+  let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy, d = Math.hypot(dx, dy), R = 50;
+  if (d > R) { dx = dx / d * R; dy = dy / d * R; }
+  joy.dx = dx / R; joy.dy = dy / R;
+  knob.style.transform = `translate(${dx}px,${dy}px)`;
+});
+const joyEnd = e => { if (e.pointerId !== joy.id) return; joy.on = false; joy.dx = joy.dy = 0; joyEl.style.display = 'none'; };
+addEventListener('pointerup', joyEnd); addEventListener('pointercancel', joyEnd);
+
+// Интерфейс апгрейдов
+const panel = document.getElementById('panel'), upsEl = document.getElementById('ups');
+document.getElementById('upBtn').addEventListener('click', () => {
+  panel.style.display = 'flex';
+  upsEl.innerHTML = `<div class="up"><div class="t"><div class="n">Кроссовки</div><div class="d">Скорость бега</div></div><button>50 ₽</button></div>`;
+});
+document.getElementById('close').addEventListener('click', () => panel.style.display = 'none');
+
+// Игровой цикл
+function resize() {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  
+  // Движение игрока
+  if (Math.hypot(joy.dx, joy.dy) > 0.1) {
+    const sp = 4.5 * dt;
+    playerGroup.position.x += joy.dx * sp;
+    playerGroup.position.z += joy.dy * sp;
+    playerGroup.rotation.y = Math.atan2(joy.dx, joy.dy);
+  }
+  playerGroup.position.x = Math.max(-6, Math.min(6, playerGroup.position.x));
+  playerGroup.position.z = Math.max(-6, Math.min(6, playerGroup.position.z));
+
+  // Камера следует за игроком вертикально (портретный вид)
+  camera.position.set(playerGroup.position.x, 14, playerGroup.position.z + 10);
+  camera.lookAt(playerGroup.position.x, 0, playerGroup.position.z - 1);
+  sun.position.set(playerGroup.position.x + 6, 18, playerGroup.position.z + 4);
+
+  document.getElementById('money').textContent = Math.round(save.money) + ' ₽';
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
