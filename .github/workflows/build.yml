@@ -3,9 +3,6 @@ name: Build Steklo APK
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'steklo-v3.1-graphics.zip'
-      - '.github/workflows/build.yml'
 
 jobs:
   build:
@@ -18,12 +15,53 @@ jobs:
       - name: Install unzip
         run: sudo apt-get update && sudo apt-get install -y unzip
 
-      - name: Extract game archive
+      - name: Extract game archive and sync updated files
+        shell: bash
         run: |
           mkdir -p game
-          unzip -o steklo-v3.1-graphics.zip -d game
-          echo "Содержимое архива:"
-          find game -maxdepth 5 -type f | head -100
+
+          # Ищем steklo-v3.1-graphics.zip или любой другой .zip архив в репозитории
+          if [ -f "steklo-v3.1-graphics.zip" ]; then
+            ZIP_FILE="steklo-v3.1-graphics.zip"
+          else
+            ZIP_FILE="$(find . -maxdepth 2 -type f -name '*.zip' | head -n 1)"
+          fi
+
+          if [ -n "$ZIP_FILE" ]; then
+            echo "Распаковка архива: $ZIP_FILE"
+            unzip -o "$ZIP_FILE" -d game
+          else
+            echo "ZIP-архив не найден, копируем файлы репозитория напрямую..."
+            rsync -a --exclude='game' --exclude='.git' ./ game/
+          fi
+
+          # Находим корень Android-проекта по settings.gradle
+          PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ОШИБКА: не найден settings.gradle внутри архива"
+            exit 1
+          fi
+
+          # Если обновленные index.html или MainActivity.java лежат отдельно в репозитории,
+          # автоматически подменяем ими старые файлы из архива
+          NEW_HTML="$(find . -maxdepth 3 -path './game' -prune -o -type f -name 'index.html' -print | head -n 1)"
+          if [ -n "$NEW_HTML" ]; then
+            echo "Найден обновленный index.html ($NEW_HTML), копируем в проект..."
+            mkdir -p "$PROJECT_DIR/app/src/main/assets"
+            cp -f "$NEW_HTML" "$PROJECT_DIR/app/src/main/assets/index.html"
+          fi
+
+          NEW_JAVA="$(find . -maxdepth 3 -path './game' -prune -o -type f -name 'MainActivity.java' -print | head -n 1)"
+          if [ -n "$NEW_JAVA" ]; then
+            echo "Найден обновленный MainActivity.java ($NEW_JAVA), копируем в проект..."
+            mkdir -p "$PROJECT_DIR/app/src/main/java/ru/steklo/game"
+            cp -f "$NEW_JAVA" "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
+          fi
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Готовый проект в папке: $PROJECT_DIR"
+          find "$PROJECT_DIR" -maxdepth 4 -type f
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -36,27 +74,27 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Find Android project
+      - name: Build APK
         shell: bash
         run: |
-          PROJECT_DIR="$(find game -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)"
+          cd "$PROJECT_DIR"
 
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "ОШИБКА: не найден settings.gradle"
-            exit 1
+          # Указываем путь к Android SDK, если нет local.properties
+          if [ -n "$ANDROID_HOME" ] && [ ! -f "local.properties" ]; then
+            echo "sdk.dir=$ANDROID_HOME" > local.properties
           fi
 
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Найден проект: $PROJECT_DIR"
+          # Гарантируем наличие флага AndroidX в gradle.properties
+          if [ -f "gradle.properties" ] && ! grep -q "android.useAndroidX" gradle.properties; then
+            echo "" >> gradle.properties
+            echo "android.useAndroidX=true" >> gradle.properties
+          fi
 
-      - name: Build APK
-        run: |
-          cd "$PROJECT_DIR"
-          gradle assembleDebug
+          gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Steklo-APK
-          path: game/**/build/outputs/apk/debug/*.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
