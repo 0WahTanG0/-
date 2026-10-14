@@ -74,9 +74,7 @@ jobs:
               }
               public static class AndroidBridge {
                   private final Context ctx;
-                  public AndroidBridge(Context ctx) {
-                      this.ctx = ctx;
-                  }
+                  public AndroidBridge(Context ctx) { this.ctx = ctx; }
                   @JavascriptInterface
                   public void vibrate(int ms) {
                       try {
@@ -88,8 +86,7 @@ jobs:
                                   v.vibrate(Math.max(10, ms));
                               }
                           }
-                      } catch (Throwable ignored) {
-                      }
+                      } catch (Throwable ignored) {}
                   }
               }
               private void hideBars() {
@@ -112,27 +109,15 @@ jobs:
                       web.evaluateJavascript("window.onBack ? window.onBack() : 'exit'", value -> {
                           if (value != null && value.contains("exit")) finish();
                       });
-                  } else {
-                      super.onBackPressed();
-                  }
+                  } else { super.onBackPressed(); }
               }
               @Override
-              protected void onPause() {
-                  super.onPause();
-                  if (web != null) web.onPause();
-              }
+              protected void onPause() { super.onPause(); if (web != null) web.onPause(); }
               @Override
-              protected void onResume() {
-                  super.onResume();
-                  if (web != null) web.onResume();
-              }
+              protected void onResume() { super.onResume(); if (web != null) web.onResume(); }
               @Override
               protected void onDestroy() {
-                  if (web != null) {
-                      web.loadUrl("about:blank");
-                      web.destroy();
-                      web = null;
-                  }
+                  if (web != null) { web.loadUrl("about:blank"); web.destroy(); web = null; }
                   super.onDestroy();
               }
           }
@@ -145,9 +130,7 @@ jobs:
           <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
           <title>Автостекла Тайкун · 4.0</title>
           <style>
-          html,body{margin:0;height:100%;overflow:hidden;background:#2c3e50;touch-action:none;
-            user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
-            font-family:system-ui,-apple-system,Roboto,"Segoe UI",sans-serif}
+          html,body{margin:0;height:100%;overflow:hidden;background:#2c3e50;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,Roboto,"Segoe UI",sans-serif}
           canvas{display:block}
           #vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(10,14,20,0.32) 100%);mix-blend-mode:multiply}
           #toolPanel{position:fixed;right:14px;bottom:20px;z-index:7;display:flex;flex-direction:column;gap:10px;pointer-events:auto;max-width:44vw}
@@ -159,7 +142,7 @@ jobs:
           #hud{position:fixed;left:0;right:0;top:0;padding:14px 14px 0;display:flex;flex-direction:column;gap:8px;pointer-events:none;z-index:5}
           .hud-row{display:flex;justify-content:space-between;align-items:flex-start}
           #money{background:linear-gradient(135deg,#1e293b,#0f172a);color:#facc15;font-weight:900;font-size:24px;padding:10px 20px;border-radius:24px;border:2px solid #38bdf855;box-shadow:0 6px 16px rgba(0,0,0,0.4)}
-          #upBtn{pointer-events:auto;background:linear-gradient(135deg,#f59e0b,#d97706);color:#111827;border:2px solid #fde68a;font-weight:900;font-size:16px;padding:12px 22px;border-radius:24px;box-shadow:0 6px 0 #92400e,0 8px 20px rgba(0,0,0,0.4);transition:transform .1s}
+          #upBtn{pointer-events:auto;background:linear-gradient(135deg,#f59e0b,#d97706);color:#111827;border:2px solid #fde68a;font-weight:900;font-size:16px;padding:12px 22px;border-radius:24px;box-shadow:0 6px 0 #92400e,0 8px 20px rgba(0,0,0,0.4)}
           #upBtn:active{transform:translateY(3px);box-shadow:0 3px 0 #92400e}
           #rank{background:rgba(30,41,59,.9);color:#fff;font-weight:800;font-size:13px;padding:8px 14px;border-radius:16px;min-width:140px;box-shadow:0 4px 12px rgba(0,0,0,0.3);border:1px solid #ffffff22}
           #rank .bar{height:7px;background:#334155;border-radius:8px;margin-top:6px;overflow:hidden}
@@ -178,7 +161,7 @@ jobs:
           .up{display:flex;align-items:center;gap:12px;background:rgba(30,41,59,.8);border:1px solid #334155;border-radius:16px;padding:12px;margin-bottom:10px}
           .up .t{flex:1}.up .n{font-weight:900;font-size:16px;color:#f8fafc}.up .d{font-size:12px;color:#94a3b8;margin-top:3px}
           .up .lv{font-size:12px;color:#4ade80;margin-top:5px;font-weight:800}
-          .up button{border:0;border-radius:14px;padding:10px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#111827;min-width:90px;box-shadow:0 4px 0 #92400e;transition:transform .1s}
+          .up button{border:0;border-radius:14px;padding:10px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#111827;min-width:90px;box-shadow:0 4px 0 #92400e}
           .up button:active{transform:translateY(2px);box-shadow:0 2px 0 #92400e}
           .up button.no{background:#334155;color:#64748b;box-shadow:0 4px 0 #1e293b}
           #close{display:block;width:100%;margin-top:10px;border:0;border-radius:16px;padding:14px;font-weight:900;font-size:16px;background:#334155;color:#fff;box-shadow:0 4px 0 #1e293b}
@@ -202,7 +185,7 @@ jobs:
             </div>
             <div class="hud-row">
               <div style="display:flex;flex-direction:column;gap:6px">
-                <div id="rank"><div id="rankTitle">Уровень 1 · Новичок</div><small id="rankXp">0 / 100 опыта</small><div class="bar"><div id="rankFill"></div></div></div>
+                <div id="rank"><div id="rankTitle">Уровень 1 · Новичок</div><small id="rankXp">0 / 100</small><div class="bar"><div id="rankFill"></div></div></div>
                 <div id="repCard"><span id="repText">Репутация · 50/100</span><div class="bar"><div id="repFill"></div></div></div>
               </div>
               <div id="comboBadge">🔥 ×2 чаевых</div>
@@ -222,7 +205,7 @@ jobs:
               <h2>Развитие мастерской</h2>
               <div id="progressCard"></div>
               <div id="ups"></div>
-              <button id="soundBtn" style="display:block;width:100%;margin-top:10px;border:0;border-radius:16px;padding:12px;font-weight:900;background:#334155;color:#fff;box-shadow:0 4px 0 #1e293b">🔊 Звуки: вкл</button>
+              <button id="soundBtn" style="display:block;width:100%;margin-top:10px;border:0;border-radius:16px;padding:12px;font-weight:900;background:#334155;color:#fff">🔊 Звуки: вкл</button>
               <button id="close">Закрыть</button>
               <button id="reset">Начать заново</button>
             </div>
@@ -231,15 +214,9 @@ jobs:
           <script src="three.min.js"></script>
           <script>
           'use strict';
-          const BAYX = [-3.2, 0, 3.2];
-          const CAR_Z = -5.4;
-          const WORK_Z = -2.6;
-          const LANE_Z = -10.5;
-          const ROAD_X = -6.8;
-          const WARE = { x: -3.0, z: 5.2 };
-          const CASH = { x: 3.2, z: 4.8 };
+          const BAYX = [-3.2, 0, 3.2], CAR_Z = -5.4, WORK_Z = -2.6, LANE_Z = -10.5, ROAD_X = -6.8;
+          const WARE = { x: -3.0, z: 5.2 }, CASH = { x: 3.2, z: 4.8 };
           const BOUNDS = { x0: -5.0, x1: 5.0, z0: -3.8, z1: 7.5 };
-
           const CAR_TYPES = [
             { name: 'Хэтчбек', price: 40, s: [0.9, 0.9, 0.85], need: 0 },
             { name: 'Седан', price: 60, s: [0.9, 0.9, 0.96], need: 1 },
@@ -251,14 +228,12 @@ jobs:
           ];
           const CAR_COLORS = [0xe74c3c, 0x3498db, 0xfec107, 0x2ecc71, 0x9b59b6, 0x34495e, 0x1abc9c, 0xe67e22];
           const SERVICES = {
-            replacement: { label: 'ЗАМЕНА', icon: '🪟', tool: 'replacement', price: 1.45, name: 'Замена лобового' },
-            repair: { label: 'РЕМОНТ', icon: '🛠', tool: 'repair', price: 1, name: 'Ремонт стекла' },
-            tint: { label: 'ТОНИРОВКА', icon: '🎞', tool: 'tint', price: 1.2, name: 'Тонировка' }
+            replacement: { label: 'ЗАМЕНА', icon: '🪟', name: 'Замена лобового' },
+            repair: { label: 'РЕМОНТ', icon: '🛠', name: 'Ремонт стекла' },
+            tint: { label: 'ТОНИРОВКА', icon: '🎞', name: 'Тонировка' }
           };
           const SERVICE_KEYS = Object.keys(SERVICES);
-          let selectedTool = 'replacement';
-          let fastStreak = 0;
-
+          let selectedTool = 'replacement', fastStreak = 0;
           const ZONES = [
             { id: 'bay2', name: 'Бокс 2', cost: 150, x: 0, z: WORK_Z, req: [] },
             { id: 'loader1', name: 'Грузчик', cost: 250, x: -3.2, z: 5.0, req: ['bay2'] },
@@ -269,23 +244,16 @@ jobs:
             { id: 'mech3', name: 'Мастер', cost: 900, x: 3.2, z: WORK_Z - 0.8, req: ['mech2'] },
             { id: 'loader2', name: 'Грузчик', cost: 1000, x: -3.2, z: 5.8, req: ['mech3'] },
           ];
-
           const UPGS = [
             { k: 'speed', name: 'Кроссовки', desc: 'Быстрее бегаешь', base: 60, max: 5 },
-            { k: 'cap', name: 'Крепкая спина', desc: '+1 к переносимым предметам', base: 80, max: 5 },
-            { k: 'work', name: 'Инструменты', desc: 'Быстрее замена и ремонт', base: 100, max: 5 },
+            { k: 'cap', name: 'Крепкая спина', desc: '+1 к предметам', base: 80, max: 5 },
+            { k: 'work', name: 'Инструменты', desc: 'Быстрее работа', base: 100, max: 5 },
             { k: 'price', name: 'Реклама', desc: '+15% к оплате', base: 150, max: 5 },
-            { k: 'staff', name: 'Обучение персонала', desc: 'Работники быстрее', base: 200, max: 5 },
+            { k: 'staff', name: 'Персонал', desc: 'Работники быстрее', base: 200, max: 5 },
           ];
-
           let save = { money: 0, unlocked: [], paid: {}, up: {}, cars: 0, xp: 0, level: 1, contractClaimed: 0, reputation: 50 };
           try { const s = JSON.parse(localStorage.getItem('steklo3d_v4') || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
           UPGS.forEach(u => { if (save.up[u.k] == null) save.up[u.k] = 0; });
-          if (!Number.isFinite(save.xp)) save.xp = 0;
-          if (!Number.isFinite(save.level)) save.level = 1;
-          if (!Number.isFinite(save.contractClaimed)) save.contractClaimed = 0;
-          if (!Number.isFinite(save.reputation)) save.reputation = 50;
-          save.reputation = Math.max(0, Math.min(100, save.reputation));
           function persist() { try { localStorage.setItem('steklo3d_v4', JSON.stringify(save)); } catch (e) {} }
           const has = id => save.unlocked.includes(id);
           const playerSpeed = () => 4.2 + save.up.speed * 0.7;
@@ -297,15 +265,12 @@ jobs:
 
           const renderer = new THREE.WebGLRenderer({ antialias: true });
           renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-          renderer.shadowMap.enabled = true;
-          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-          renderer.outputColorSpace = THREE.SRGBColorSpace;
-          renderer.toneMapping = THREE.ACESFilmicToneMapping;
-          renderer.toneMappingExposure = 1.05;
+          renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
           document.body.appendChild(renderer.domElement);
 
           const scene = new THREE.Scene();
-          scene.background = new THREE.Color(0xfdecd0); // Теплый песочно-закатный фон
+          scene.background = new THREE.Color(0xfdecd0);
           scene.fog = new THREE.Fog(0xfdecd0, 28, 65);
           const camera = new THREE.PerspectiveCamera(45, 1, 0.5, 200);
 
@@ -314,14 +279,10 @@ jobs:
             draw(c.getContext('2d'), w, h);
             const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
           }
-
           scene.add(new THREE.HemisphereLight(0xfff3e0, 0x8d6e63, 0.9));
           const sun = new THREE.DirectionalLight(0xffeedd, 1.8);
-          sun.castShadow = true;
-          sun.shadow.mapSize.set(2048, 2048);
+          sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
           Object.assign(sun.shadow.camera, { left: -14, right: 14, top: 14, bottom: -14, near: 1, far: 50 });
-          sun.shadow.bias = -0.001;
-          sun.shadow.radius = 2.0;
           scene.add(sun, sun.target);
 
           const M = (c, r = 0.65, m = 0.05) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
@@ -329,137 +290,79 @@ jobs:
             const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
             mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; return mesh;
           };
-          function roundedBox(w, h, d, mat, x = 0, y = 0, z = 0, r = 0.08, cast = true) {
-            r = Math.min(r, w * 0.2, h * 0.2, d * 0.2);
-            const shape = new THREE.Shape();
-            shape.moveTo(-w / 2 + r, -h / 2); shape.lineTo(w / 2 - r, -h / 2); shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
-            shape.lineTo(w / 2, h / 2 - r); shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
-            shape.lineTo(-w / 2 + r, h / 2); shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
-            shape.lineTo(-w / 2, -h / 2 + r); shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
-            const depth = Math.max(0.04, d - r * 1.2);
-            const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: r * 0.25, bevelThickness: r * 0.25, curveSegments: 4 });
-            geo.translate(0, 0, -depth / 2 - r * 0.25);
-            const mesh = new THREE.Mesh(geo, mat); mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; return mesh;
-          }
           const flat = (w, d, mat, x, y, z) => {
             const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat);
             m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.receiveShadow = true; return m;
           };
 
-          // ---- Текстуры стекла ----
           const crackTex = canvasTex(256, 128, (g, W, H) => {
             g.fillStyle = '#93c5fd'; g.fillRect(0, 0, W, H);
             g.strokeStyle = '#ffffff'; g.lineWidth = 2.5;
             const cx = W / 2, cy = H / 2;
-            for (let i = 0; i < 10; i++) {
-              let a = i / 10 * Math.PI * 2, x = cx, y = cy; g.beginPath(); g.moveTo(x, y);
-              for (let s = 0; s < 4; s++) { a += (Math.random() - .5) * .5; x += Math.cos(a) * 25; y += Math.sin(a) * 15; g.lineTo(x, y); }
+            for (let i = 0; i < 8; i++) {
+              let a = i / 8 * Math.PI * 2, x = cx, y = cy; g.beginPath(); g.moveTo(x, y);
+              for (let s = 0; s < 3; s++) { a += (Math.random() - .5) * .5; x += Math.cos(a) * 20; y += Math.sin(a) * 12; g.lineTo(x, y); }
               g.stroke();
             }
           });
           const cleanTex = canvasTex(256, 128, (g, W, H) => {
             g.fillStyle = '#60a5fa'; g.fillRect(0, 0, W, H);
-            g.fillStyle = 'rgba(255,255,255,0.3)'; g.beginPath(); g.moveTo(40, 0); g.lineTo(90, 0); g.lineTo(50, H); g.lineTo(0, H); g.fill();
           });
-          const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x93c5fd, roughness: 0.1, metalness: 0, transparent: true, opacity: 0.88, clearcoat: 1, transmission: 0.6, thickness: 0.2 });
+          const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x93c5fd, roughness: 0.1, transparent: true, opacity: 0.88, transmission: 0.6 });
           const moneyMat = new THREE.MeshLambertMaterial({ color: 0x22c55e, emissive: 0x14532d });
           const glassGeo = new THREE.BoxGeometry(0.85, 0.06, 0.55);
           const moneyGeo = new THREE.BoxGeometry(0.45, 0.1, 0.24);
 
-          // ---- Окружение (теплый песочный стиль) ----
-          const groundTex = canvasTex(256, 256, (g, W, H) => {
+          const groundTex = canvasTex(128, 128, (g, W, H) => {
             g.fillStyle = '#e6ccb2'; g.fillRect(0, 0, W, H);
-            for (let i = 0; i < 900; i++) {
-              g.fillStyle = Math.random() > 0.5 ? 'rgba(180,140,110,0.2)' : 'rgba(255,240,220,0.25)';
-              g.beginPath(); g.arc(Math.random() * W, Math.random() * H, 1 + Math.random() * 2, 0, 7); g.fill();
-            }
           });
-          groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping; groundTex.repeat.set(30, 30);
-          scene.add(flat(140, 140, new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.9 }), 0, 0, 0));
+          groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping; groundTex.repeat.set(20, 20);
+          scene.add(flat(100, 100, new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.9 }), 0, 0, 0));
 
-          const blobTex = canvasTex(128, 128, (g, W, H) => {
-            const grad = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
-            grad.addColorStop(0, 'rgba(0,0,0,0.35)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
-            g.fillStyle = grad; g.fillRect(0, 0, W, H);
-          });
-          function contactShadow(w, d, x, z, parent = scene) {
-            const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }));
-            m.rotation.x = -Math.PI / 2; m.position.set(x, 0.02, z); parent.add(m); return m;
-          }
+          scene.add(flat(4.2, 45, M(0x334155), ROAD_X, 0.01, 5));
+          scene.add(flat(25, 4.2, M(0x334155), 0, 0.01, LANE_Z));
+          scene.add(flat(11.5, 12, M(0xd4d4d8), 0, 0.02, 0.5));
+          for (const x of BAYX) scene.add(flat(3.4, 4.8, M(0xa1a1aa), x, 0.03, WORK_Z));
 
-          // Дороги и площадка
-          scene.add(flat(4.2, 55, M(0x334155, 0.9), ROAD_X, 0.01, 5));
-          scene.add(flat(32, 4.2, M(0x334155, 0.9), 0, 0.01, LANE_Z));
-          scene.add(flat(11.5, 14.2, M(0xd4d4d8, 0.8), 0, 0.02, 0.5));
-
-          for (const x of BAYX) {
-            const floor = flat(3.4, 4.8, M(0xa1a1aa, 0.7), x, 0.03, WORK_Z);
-            scene.add(floor);
-          }
-
-          // Склад и касса
           scene.add(box(3.2, 0.1, 1.2, M(0x475569), WARE.x, 0.4, WARE.z));
           scene.add(box(2.8, 0.9, 1.0, M(0xb45309), CASH.x, 0.45, CASH.z));
 
-          // ---- Пропорциональные мультяшные персонажи (Low-Poly / Stylized) ----
-          function makePerson(shirtColor, hatColor = null) {
+          function makePerson(shirtColor) {
             const g = new THREE.Group();
-            const skinM = M(0xfcd34d, 0.8), shirtM = M(shirtColor, 0.6), pantsM = M(0x1e293b, 0.8), bootM = M(0x0f172a, 0.9);
-            
-            // Ноги с анимацией
+            const skinM = M(0xfcd34d), shirtM = M(shirtColor), pantsM = M(0x1e293b);
             const legL = box(0.18, 0.5, 0.18, pantsM, -0.11, 0.25, 0);
             const legR = box(0.18, 0.5, 0.18, pantsM, 0.11, 0.25, 0);
             legL.geometry.translate(0, -0.25, 0); legR.geometry = legL.geometry;
             legL.position.y = legR.position.y = 0.5;
-
-            // Торс
-            const body = roundedBox(0.42, 0.55, 0.28, shirtM, 0, 0.75, 0, 0.08);
-            
-            // Голова
-            const head = roundedBox(0.32, 0.35, 0.32, skinM, 0, 1.25, 0, 0.1);
-            
-            // Кепка
-            if (hatColor) {
-              const hat = roundedBox(0.35, 0.15, 0.36, M(hatColor), 0, 1.42, 0, 0.05);
-              const visor = box(0.22, 0.04, 0.18, M(hatColor), 0, 1.38, 0.18, false);
-              g.add(hat, visor);
-            }
-
-            // Руки
-            const armL = box(0.12, 0.45, 0.12, shirtM, -0.29, 0.78, 0);
-            const armR = box(0.12, 0.45, 0.12, shirtM, 0.29, 0.78, 0);
-
-            g.add(legL, legR, body, head, armL, armR);
-            g.userData = { legL, legR, armL, armR, walk: 0 };
+            const body = box(0.42, 0.55, 0.28, shirtM, 0, 0.75, 0);
+            const head = box(0.32, 0.35, 0.32, skinM, 0, 1.25, 0);
+            g.add(legL, legR, body, head);
+            g.userData = { legL, legR, walk: 0 };
             scene.add(g);
             return g;
           }
-
           function animateWalk(p, moving, dt) {
             const u = p.userData;
             if (moving) u.walk += dt * 14; else u.walk *= 0.8;
-            const s = Math.sin(u.walk) * (moving ? 0.65 : 0);
+            const s = Math.sin(u.walk) * (moving ? 0.6 : 0);
             u.legL.rotation.x = s; u.legR.rotation.x = -s;
-            u.armL.rotation.x = -s; u.armR.rotation.x = s;
           }
-
           function updateStack(p, stack, count) {
             while (stack.length < count) {
-              const m = new THREE.Mesh(glassGeo, glassMat); m.castShadow = true;
+              const m = new THREE.Mesh(glassGeo, glassMat);
               m.position.set(0, 0.9 + stack.length * 0.12, 0.45); p.add(m); stack.push(m);
             }
             while (stack.length > count) p.remove(stack.pop());
           }
 
-          const player = { obj: makePerson(0x38bdf8, 0x0284c7), glass: 0, supplies: { repair: 0, tint: 0 }, stack: [] };
+          const player = { obj: makePerson(0x38bdf8), glass: 0, supplies: { repair: 0, tint: 0 }, stack: [] };
           player.obj.position.set(0, 0, 2);
 
-          // ---- Боксы ----
           const bays = BAYX.map((x, i) => {
-            const progMat = new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide });
+            const progMat = new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.95 });
             const b = {
               i, x, open: false, car: null, stand: 0, incoming: 0, standMeshes: [],
-              progress: 0, lastProgRender: 0, cool: 0.5 + i, mech: null, mechPrep: 0,
+              progress: 0, lastProgRender: 0, cool: 0.5 + i, mech: null,
               ring: null, prog: null, progMat, jobReady: false
             };
             const st = new THREE.Group(); st.position.set(x + 1.4, 0, WORK_Z);
@@ -467,12 +370,11 @@ jobs:
             b.standGroup = st; st.visible = false; scene.add(st);
             return b;
           });
-
           function setStand(b, n) {
             b.stand = n;
             while (b.standMeshes.length < n) {
               const g = new THREE.Mesh(glassGeo, glassMat);
-              g.position.set(0, 0.38, -0.05 + b.standMeshes.length * 0.12); g.rotation.x = -0.2; g.castShadow = true;
+              g.position.set(0, 0.38, -0.05 + b.standMeshes.length * 0.12); g.rotation.x = -0.2;
               b.standGroup.add(g); b.standMeshes.push(g);
             }
             while (b.standMeshes.length > n) b.standGroup.remove(b.standMeshes.pop());
@@ -481,53 +383,37 @@ jobs:
           function setProgress(b, p) {
             b.progress = p;
             if (p <= 0.001) { if (b.prog) b.prog.visible = false; b.lastProgRender = 0; return; }
-            if (b.prog && Math.abs(p - b.lastProgRender) < 0.015 && p < 1) return;
+            if (b.prog && Math.abs(p - b.lastProgRender) < 0.02 && p < 1) return;
             b.lastProgRender = p;
             const angle = -Math.PI * 2 * Math.min(1, p);
             if (!b.prog) {
-              b.prog = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.85, 32, 1, Math.PI / 2, angle), b.progMat);
+              b.prog = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.85, 24, 1, Math.PI / 2, angle), b.progMat);
               b.prog.rotation.x = -Math.PI / 2; b.prog.position.set(b.x, 0.05, WORK_Z); scene.add(b.prog);
             } else {
               b.prog.visible = true; b.prog.geometry.dispose();
-              b.prog.geometry = new THREE.RingGeometry(0.6, 0.85, 32, 1, Math.PI / 2, angle);
+              b.prog.geometry = new THREE.RingGeometry(0.6, 0.85, 24, 1, Math.PI / 2, angle);
             }
           }
 
-          // ---- Машины ----
           const cars = [];
           function makeCar(type, color) {
             const g = new THREE.Group();
             const bodyMat = M(color, 0.3, 0.5);
-            contactShadow(2.2, 4.0, 0, 0, g);
-            g.add(roundedBox(1.7, 0.55, 3.8, bodyMat, 0, 0.45, 0, 0.15));
-            g.add(roundedBox(1.45, 0.5, 1.9, bodyMat, 0, 0.95, -0.2, 0.12));
-            
-            const ws = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 0.75), new THREE.MeshLambertMaterial({ map: crackTex }));
-            ws.position.set(0, 0.95, 0.76); ws.rotation.x = -0.72; g.add(ws);
-
-            const fxGroup = new THREE.Group(); fxGroup.position.set(0, 0.98, 0.8); fxGroup.rotation.x = -0.72; fxGroup.visible = false;
-            const uvTool = box(0.2, 0.06, 0.1, M(0x1e293b), 0, 0, 0.04, false);
-            const uvBulb = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
-            uvTool.add(uvBulb); fxGroup.add(uvTool); g.add(fxGroup);
-
+            g.add(box(1.7, 0.55, 3.8, bodyMat, 0, 0.45, 0));
+            g.add(box(1.45, 0.45, 1.8, bodyMat, 0, 0.92, -0.2));
+            const ws = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 0.7), new THREE.MeshLambertMaterial({ map: crackTex }));
+            ws.position.set(0, 0.92, 0.71); ws.rotation.x = -0.72; g.add(ws);
             for (const sx of [-1, 1]) for (const sz of [-1.2, 1.2]) {
-              const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.28, 16), M(0x0f172a, 0.9));
-              wheel.rotation.z = Math.PI / 2; wheel.position.set(sx * 0.9, 0.34, sz); wheel.castShadow = true; g.add(wheel);
+              const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.28, 12), M(0x0f172a));
+              wheel.rotation.z = Math.PI / 2; wheel.position.set(sx * 0.9, 0.34, sz); g.add(wheel);
             }
             g.scale.set(type.s[0], type.s[1], type.s[2]);
             scene.add(g);
-            return { obj: g, ws, wsBaseY: 0.95, wsBaseZ: 0.76, fxGroup, uvBulb };
+            return { obj: g, ws, wsBaseY: 0.92, wsBaseZ: 0.71 };
           }
-
           function disposeCar(car) {
             if (!car) return;
-            car.obj.traverse(node => {
-              if (node.geometry) node.geometry.dispose();
-              if (node.material) {
-                const mats = Array.isArray(node.material) ? node.material : [node.material];
-                mats.forEach(m => m.dispose());
-              }
-            });
+            car.obj.traverse(n => { if (n.geometry) n.geometry.dispose(); if (n.material) n.material.dispose(); });
             scene.remove(car.obj);
           }
 
@@ -535,21 +421,14 @@ jobs:
             const svc = SERVICES[serviceKey] || SERVICES.repair;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = mood === 'angry' ? '#dc2626' : mood === 'worry' ? '#d97706' : mood === 'happy' ? '#16a34a' : '#1e293b';
+            ctx.fillStyle = mood === 'angry' ? '#dc2626' : mood === 'happy' ? '#16a34a' : '#1e293b';
             ctx.beginPath(); ctx.roundRect(8, 8, 496, 156, 32); ctx.fill();
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6; ctx.stroke();
             ctx.font = 'bold 50px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(mood === 'angry' ? '😡' : mood === 'worry' ? '😟' : mood === 'happy' ? '😊' : svc.icon, 70, 74);
+            ctx.fillText(mood === 'angry' ? '😡' : mood === 'happy' ? '😊' : svc.icon, 70, 74);
             ctx.font = '900 34px system-ui'; ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff';
-            ctx.fillText(mood === 'angry' ? 'НЕДОВОЛЕН' : mood === 'worry' ? 'ЖДЁТ' : mood === 'happy' ? 'ГОТОВО' : svc.label, 122, 74);
-            if (mood !== 'happy') {
-              ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.roundRect(36, 126, 440, 16, 8); ctx.fill();
-              const r = Math.max(0, Math.min(1, ratio));
-              ctx.fillStyle = r > 0.6 ? '#22c55e' : r > 0.3 ? '#facc15' : '#ef4444';
-              ctx.beginPath(); ctx.roundRect(36, 126, Math.max(16, 440 * r), 16, 8); ctx.fill();
-            }
+            ctx.fillText(mood === 'angry' ? 'НЕДОВОЛЕН' : mood === 'happy' ? 'ГОТОВО' : svc.label, 122, 74);
           }
-
           function serviceSticker(serviceKey, mood = 'service', ratio = 1) {
             const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 172;
             drawStickerCanvas(canvas, serviceKey, mood, ratio);
@@ -558,11 +437,10 @@ jobs:
             sprite.scale.set(2.8, 0.95, 1); sprite.position.set(0, 2.6, 0); sprite.renderOrder = 20;
             return { sprite, tex, canvas, mood, step: Math.round(ratio * 20) };
           }
-
           function updateCarSticker(car) {
             if (!car || !car.sticker) return;
             const ratio = car.maxPatience > 0 ? car.patience / car.maxPatience : 1;
-            const mood = car.mood === 'happy' ? 'happy' : ratio < 0.28 ? 'angry' : ratio < 0.62 ? 'worry' : 'service';
+            const mood = car.mood === 'happy' ? 'happy' : ratio < 0.3 ? 'angry' : 'service';
             const step = Math.round(ratio * 20);
             if (mood !== car.mood || step !== car.sticker.step) {
               car.mood = mood; car.sticker.mood = mood; car.sticker.step = step;
@@ -570,26 +448,11 @@ jobs:
               car.sticker.tex.needsUpdate = true;
             }
           }
-
-          function updateCarWorkVisual(car, progress, nowSec) {
-            if (!car) return;
-            if (progress <= 0.001) { car.fxGroup.visible = false; return; }
-            if (car.service === 'replacement') {
-              car.fxGroup.visible = false;
-              car.ws.material.map = progress < 0.5 ? crackTex : cleanTex;
-              car.ws.material.needsUpdate = true;
-            } else if (car.service === 'repair') {
-              car.fxGroup.visible = true;
-              car.uvBulb.scale.setScalar(0.9 + Math.sin(nowSec * 16) * 0.2);
-            }
-          }
-
           function updateToolHud() {
             const names = { replacement: 'Замена', repair: 'Ремонт', tint: 'Тонировка' };
-            const cap = playerCap();
             document.querySelectorAll('.toolBtn').forEach(b => b.classList.toggle('active', b.dataset.tool === selectedTool));
             const el = document.getElementById('toolStatus');
-            if (el) el.innerHTML = `Инструмент: ${names[selectedTool]}<small>Склад: ${player.glass}/${cap} · ${player.supplies.repair}/${cap} · ${player.supplies.tint}/${cap}</small>`;
+            if (el) el.innerHTML = `Инструмент: ${names[selectedTool]}<small>Склад: ${player.glass}/${playerCap()}</small>`;
           }
           document.querySelectorAll('.toolBtn').forEach(btn => btn.addEventListener('click', () => { selectedTool = btn.dataset.tool; updateToolHud(); sfx('click'); }));
 
@@ -598,27 +461,22 @@ jobs:
             const type = pool[Math.floor(Math.random() * pool.length)];
             const c = makeCar(type, CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]);
             const service = SERVICE_KEYS[Math.floor(Math.random() * SERVICE_KEYS.length)];
-            const maxP = Math.max(28, 48 + save.reputation * 0.12 - save.cars * 0.15);
             const car = {
-              ...c, type, service, bay: b, state: 'arrive', patience: maxP, maxPatience: maxP,
+              ...c, type, service, bay: b, state: 'arrive', patience: 50, maxPatience: 50,
               path: [{ x: ROAD_X, z: -2 }, { x: ROAD_X, z: LANE_Z }, { x: b.x, z: LANE_Z }, { x: b.x, z: CAR_Z }],
               pi: 0, sticker: null, mood: 'service', jobReady: false
             };
             car.sticker = serviceSticker(service, 'service', 1);
             car.obj.add(car.sticker.sprite);
             car.obj.position.set(ROAD_X, 0, 16); car.obj.rotation.y = Math.PI;
-            b.car = car; b.mechPrep = 0; cars.push(car);
+            b.car = car; cars.push(car);
           }
-
           function moveCar(car, dt) {
             const p = car.path[car.pi]; if (!p) return true;
             const o = car.obj.position, dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz);
             const sp = 10 * dt;
             if (d < sp) { o.x = p.x; o.z = p.z; car.pi++; return car.pi >= car.path.length; }
             o.x += dx / d * sp; o.z += dz / d * sp;
-            let target = Math.atan2(dx, dz); if (p.rev) target += Math.PI;
-            let diff = target - car.obj.rotation.y; diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-            car.obj.rotation.y += diff * Math.min(1, dt * 8);
             return false;
           }
 
@@ -628,13 +486,12 @@ jobs:
             return new THREE.Vector3(CASH.x - 0.5 + c * 0.5, 0.85 + layer * 0.12, CASH.z - 0.3 + r * 0.4);
           }
           function addPile(v, from) {
-            const m = new THREE.Mesh(moneyGeo, moneyMat); m.castShadow = true;
+            const m = new THREE.Mesh(moneyGeo, moneyMat);
             const idx = pile.length; pile.push({ mesh: m, v });
             scene.add(m);
             const to = pilePos(Math.min(idx, 35));
             fly(m, from.clone(), () => to, 0.5, () => { m.position.copy(to); if (idx >= 36) m.visible = false; }, false);
           }
-
           const flyers = [];
           function fly(mesh, from, toFn, dur, done, remove = true) {
             if (!mesh.parent) scene.add(mesh);
@@ -650,7 +507,6 @@ jobs:
               if (f.t >= 1) { if (f.remove) scene.remove(f.mesh); f.done && f.done(); flyers.splice(i, 1); }
             }
           }
-
           const pops = [];
           function popup(text, pos, color) {
             const d = document.createElement('div'); d.className = 'pop'; d.textContent = text;
@@ -704,16 +560,16 @@ jobs:
             if (id === 'bay2') openBay(bays[1]);
             if (id === 'bay3') openBay(bays[2]);
             if (id.startsWith('loader')) {
-              const o = makePerson(0x3b82f6, 0x1d4ed8); o.position.set(WARE.x, 0, 4);
+              const o = makePerson(0x3b82f6); o.position.set(WARE.x, 0, 4);
               loaders.push({ obj: o, glass: 0, stack: [], state: 'toWare', target: null, t: 0 });
             }
             if (id.startsWith('mech')) {
               const b = bays[+id.slice(4) - 1];
-              const o = makePerson(0x64748b, 0x334155); o.position.set(b.x - 1.0, 0, WORK_Z - 0.5);
+              const o = makePerson(0x64748b); o.position.set(b.x - 1.0, 0, WORK_Z - 0.5);
               b.mech = { obj: o };
             }
             if (id === 'cashier') {
-              const o = makePerson(0x10b981, 0x059669); o.position.set(CASH.x + 0.8, 0, CASH.z + 0.5); o.rotation.y = -Math.PI / 2;
+              const o = makePerson(0x10b981); o.position.set(CASH.x + 0.8, 0, CASH.z + 0.5);
               cashier = { obj: o, t: 0 };
             }
             if (!silent) {
@@ -762,15 +618,12 @@ jobs:
             }
           }
 
-          // ---- Управление (джойстик) ----
           const joy = { on: false, id: null, ox: 0, oy: 0, dx: 0, dy: 0 };
           const joyEl = document.getElementById('joy'), knob = document.getElementById('knob');
-          let panelOpen = false;
           renderer.domElement.addEventListener('pointerdown', e => {
             if (panelOpen || joy.on) return;
             joy.on = true; joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; joy.dx = joy.dy = 0;
             joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyEl.style.display = 'block';
-            knob.style.transform = 'translate(0,0)';
           });
           addEventListener('pointermove', e => {
             if (!joy.on || e.pointerId !== joy.id) return;
@@ -789,79 +642,7 @@ jobs:
             try { if (window.AndroidBridge) window.AndroidBridge.vibrate(ms); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
           }
 
-          let audioCtx = null, soundEnabled = true;
-          function playTone(freq, duration = 0.12, type = 'sine', volume = 0.045, delay = 0) {
-            if (!soundEnabled) return;
-            try {
-              const AC = window.AudioContext || window.webkitAudioContext;
-              if (!audioCtx) audioCtx = new AC();
-              if (audioCtx.state === 'suspended') audioCtx.resume();
-              const t = audioCtx.currentTime + delay, osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-              osc.type = type; osc.frequency.setValueAtTime(freq, t);
-              gain.gain.setValueAtTime(0.0001, t);
-              gain.gain.exponentialRampToValueAtTime(volume, t + 0.015);
-              gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-              osc.connect(gain); gain.connect(audioCtx.destination);
-              osc.start(t); osc.stop(t + duration + 0.02);
-            } catch (e) {}
-          }
-          function sfx(name) {
-            if (name === 'upgrade') { playTone(520, .11, 'triangle', .05); playTone(780, .16, 'triangle', .05, .09); }
-            else if (name === 'unlock') { playTone(392, .12, 'triangle', .045); playTone(523, .12, 'triangle', .05, .1); }
-            else if (name === 'cash') { playTone(880, .07, 'sine', .025); playTone(1175, .1, 'sine', .025, .06); }
-            else if (name === 'level') { playTone(440, .15, 'triangle', .055); playTone(660, .15, 'triangle', .055, .12); }
-            else if (name === 'warning') { playTone(260, .18, 'square', .025); }
-            else if (name === 'click') playTone(420, .055, 'sine', .018);
-            else if (name === 'pickup') { playTone(540, .07, 'triangle', .03); }
-          }
-
-          let toastTimer = 0;
-          function showToast(icon, title, sub, sound = 'upgrade') {
-            const el = document.getElementById('toast');
-            if (!el) return;
-            el.querySelector('.icon').textContent = icon;
-            el.querySelector('.title').textContent = title;
-            el.querySelector('.sub').textContent = sub || '';
-            el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-            clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 1900);
-            if (sound) sfx(sound);
-          }
-
-          const panel = document.getElementById('panel'), upsEl = document.getElementById('ups');
-          function renderPanel() {
-            const xpNeed = xpForNextLevel();
-            const contractDone = save.cars % 5;
-            const contractReward = 120 + save.level * 30;
-            document.getElementById('progressCard').innerHTML = `<div class="big">Уровень ${save.level} · ${rankName(save.level)}</div><div class="muted">Опыт: ${save.xp} / ${xpNeed} · Заказов: ${save.cars}</div><div class="contract"><b>Заказ недели</b><br>Выполни ещё ${5 - contractDone} заказов и получи бонус ${contractReward} ₽.<br><span style="color:#facc15">${contractDone}/5</span></div><div class="muted" style="margin-top:8px">Репутация: ${Math.round(save.reputation)}/100</div>`;
-            upsEl.innerHTML = UPGS.map(u => {
-              const lv = save.up[u.k], max = lv >= u.max, c = upCost(u);
-              return `<div class="up"><div class="t"><div class="n">${u.name}</div><div class="d">${u.desc}</div>
-                <div class="lv">${'●'.repeat(lv)}${'○'.repeat(u.max - lv)}</div></div>
-                <button data-k="${u.k}" class="${max || save.money < c ? 'no' : ''}">${max ? 'Макс.' : c + ' ₽'}</button></div>`;
-            }).join('');
-          }
-          upsEl.addEventListener('click', e => {
-            const k = e.target.dataset && e.target.dataset.k; if (!k) return;
-            const u = UPGS.find(u => u.k === k), c = upCost(u);
-            if (save.up[k] >= u.max || save.money < c) { vibrate(20); sfx('click'); return; }
-            save.money -= c; save.up[k]++; persist(); vibrate(40);
-            showToast('✨', 'Улучшено!', `${u.name} (ур. ${save.up[k]})`, 'upgrade');
-            renderPanel(); updateHud(true); updateToolHud();
-          });
-          function openPanel(v) { panelOpen = v; panel.style.display = v ? 'flex' : 'none'; if (v) { renderPanel(); joy.on = false; joyEl.style.display = 'none'; } }
-          document.getElementById('upBtn').addEventListener('click', () => openPanel(true));
-          document.getElementById('close').addEventListener('click', () => openPanel(false));
-          document.getElementById('soundBtn').addEventListener('click', e => {
-            soundEnabled = !soundEnabled; e.currentTarget.textContent = soundEnabled ? '🔊 Звуки: вкл' : '🔇 Звуки: выкл';
-          });
-          document.getElementById('reset').addEventListener('click', () => {
-            if (confirm('Сбросить прогресс?')) { try { localStorage.removeItem('steklo3d_v4'); } catch (e) {} location.reload(); }
-          });
-          window.onBack = function () { if (panelOpen) { openPanel(false); return ''; } persist(); return 'exit'; };
-
-          // ---- HUD ----
-          const moneyEl = document.getElementById('money'), hintEl = document.getElementById('hint'), comboEl = document.getElementById('comboBadge');
-          let shownMoney = save.money, hudCache = { m: -1, lvl: -1, xp: -1, rep: -1, combo: -1 };
+          let shownMoney = save.money, hudCache = { m: -1, lvl: -1, xp: -1, rep: -1 };
           function updateHud(force = false) {
             const mRound = Math.round(shownMoney);
             if (force || mRound !== hudCache.m) { hudCache.m = mRound; moneyEl.textContent = mRound + ' ₽'; }
@@ -877,11 +658,6 @@ jobs:
               hudCache.rep = repRound;
               document.getElementById('repText').textContent = `Репутация · ${repRound}/100`;
               document.getElementById('repFill').style.width = `${save.reputation}%`;
-            }
-            if (force || fastStreak !== hudCache.combo) {
-              hudCache.combo = fastStreak;
-              comboEl.style.display = fastStreak >= 2 ? 'inline-block' : 'none';
-              comboEl.textContent = `🔥 ×${fastStreak} чаевых`;
             }
           }
           function xpForLevel(level) { return Math.round(100 * (level - 1) + 25 * (level - 1) * (level - 2)); }
@@ -905,7 +681,7 @@ jobs:
             return { x: WARE.x, z: WARE.z, text: 'Взять стекло на складе' };
           }
 
-          let tick = { ware: 0, drop: 0, cash: 0, pay: 0, save: 0, hint: 0 };
+          let tick = { ware: 0, drop: 0, cash: 0, pay: 0 };
           const v3 = new THREE.Vector3();
           function inCircle(o, x, z, r) { return Math.hypot(o.position.x - x, o.position.z - z) < r; }
           function inSquare(o, x, z, h) { return Math.abs(o.position.x - x) < h && Math.abs(o.position.z - z) < h; }
@@ -926,7 +702,6 @@ jobs:
             P.position.x = Math.max(BOUNDS.x0, Math.min(BOUNDS.x1, P.position.x));
             P.position.z = Math.max(BOUNDS.z0, Math.min(BOUNDS.z1, P.position.z));
 
-            // Склад
             tick.ware -= dt;
             const maxCap = playerCap();
             if (inCircle(P, WARE.x, WARE.z, 1.3) && tick.ware <= 0) {
@@ -935,7 +710,6 @@ jobs:
               updateToolHud();
             }
 
-            // Боксы
             tick.drop -= dt;
             for (const b of bays) {
               if (!b.open) continue;
@@ -964,13 +738,11 @@ jobs:
                 const workers = (here ? 1 : 0) + (b.mech ? staffMul() * 0.9 : 0);
                 if (b.jobReady && workers > 0) {
                   setProgress(b, b.progress + dt * workers / workTime());
-                  updateCarWorkVisual(car, b.progress, nowSec);
                   if (b.progress >= 1) finishCar(b);
                 }
               }
             }
 
-            // Движение машин
             for (let i = cars.length - 1; i >= 0; i--) {
               const c = cars[i];
               if (c.state === 'arrive') {
@@ -980,7 +752,6 @@ jobs:
               }
             }
 
-            // Касса
             tick.cash -= dt;
             while (pile.length && inCircle(P, CASH.x, CASH.z, 1.3) && tick.cash <= 0) {
               tick.cash = 0.05; takeMoney(P.position);
@@ -989,7 +760,6 @@ jobs:
               cashier.t -= dt; if (cashier.t <= 0) { cashier.t = 0.25 / staffMul(); takeMoney(cashier.obj.position); }
             }
 
-            // Зоны покупки
             tick.pay -= dt;
             for (const z of ZONES) {
               if (!zoneVisible(z) || !inSquare(P, z.x, z.z, 1.0)) continue;
@@ -1011,7 +781,6 @@ jobs:
 
             loaders.forEach(L => updateLoader(L, dt));
 
-            // Стрелка-указатель
             const ob = objective();
             if (ob && save.unlocked.length < 3) {
               arrow.visible = true; arrow.position.set(ob.x, 2.2 + Math.sin(nowSec * 5) * 0.2, ob.z);
@@ -1024,24 +793,13 @@ jobs:
 
           function finishCar(b) {
             const car = b.car;
-            setProgress(b, 0); updateCarWorkVisual(car, 0, 0);
-            setStand(b, Math.max(0, b.stand - 1));
-            b.jobReady = false;
-            car.ws.material.map = cleanTex; car.ws.material.needsUpdate = true;
-            
-            const fastRatio = car.maxPatience > 0 ? car.patience / car.maxPatience : 0;
-            let fastBonus = fastRatio >= 0.65 ? 1.25 : 1;
-            if (fastBonus > 1) fastStreak++; else fastStreak = 0;
-
-            const price = Math.round(car.type.price * SERVICES[car.service].price * priceMul() * fastBonus);
+            setProgress(b, 0); setStand(b, Math.max(0, b.stand - 1));
+            b.jobReady = false; car.ws.material.map = cleanTex;
+            const price = Math.round(car.type.price * SERVICES[car.service].price * priceMul());
             car.mood = 'happy'; updateCarSticker(car);
-
-            const n = 4, v = Math.floor(price / n);
-            for (let i = 0; i < n; i++) setTimeout(() => addPile(v, car.obj.position.clone().setY(1.4)), i * 80);
-
-            popup('+' + price + ' ₽', car.obj.position, fastBonus > 1 ? '#facc15' : '#ffffff');
+            for (let i = 0; i < 4; i++) setTimeout(() => addPile(Math.floor(price / 4), car.obj.position.clone().setY(1.4)), i * 80);
+            popup('+' + price + ' ₽', car.obj.position);
             sfx('cash'); save.cars++; save.xp += 30;
-            
             while (save.xp >= xpForNextLevel()) {
               save.level++;
               const bonus = 100 + save.level * 40;
@@ -1055,8 +813,7 @@ jobs:
           }
 
           function customerLeaves(b, car) {
-            fastStreak = 0; setProgress(b, 0);
-            changeReputation(-6);
+            setProgress(b, 0); save.reputation = Math.max(0, save.reputation - 6);
             popup('Клиент уехал!', car.obj.position, '#ef4444');
             sfx('warning');
             car.state = 'leave'; car.path = [{ x: b.x, z: LANE_Z, rev: true }, { x: 25, z: LANE_Z }]; car.pi = 0;
@@ -1064,17 +821,6 @@ jobs:
             persist(); updateHud(); vibrate(80);
           }
 
-          function takeMoney(to) {
-            const item = pile.pop(); if (!item) return;
-            save.money += item.v;
-            const m = item.mesh; m.visible = true;
-            const fi = flyers.findIndex(f => f.mesh === m); if (fi >= 0) flyers.splice(fi, 1);
-            fly(m, m.position.clone(), () => v3.copy(to).setY(1.2), 0.2);
-          }
-
-          function changeReputation(d) { save.reputation = Math.max(0, Math.min(100, save.reputation + d)); }
-
-          // Камера под вертикальный режим (портрет)
           function resize() {
             renderer.setSize(innerWidth, innerHeight);
             camera.aspect = innerWidth / innerHeight;
@@ -1097,7 +843,7 @@ jobs:
           let last = performance.now();
           function frame(now) {
             const dt = Math.min(0.05, (now - last) / 1000); last = now;
-            if (!panelOpen) update(dt);
+            update(dt);
             updateFlyers(dt);
             updateCamera(dt);
             renderer.render(scene, camera);
@@ -1111,7 +857,7 @@ jobs:
           </html>
           EOF_HTML
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          gradle clean assembleDebug --stacktrace
+          gradle clean assembleDebug --stacktrace --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
