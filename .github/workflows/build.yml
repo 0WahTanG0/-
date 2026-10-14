@@ -15,7 +15,7 @@ jobs:
       - name: Install unzip
         run: sudo apt-get update && sudo apt-get install -y unzip
 
-      - name: Extract game archive and write updated game files
+      - name: Extract game archive and write PBR graphics update
         shell: bash
         run: |
           mkdir -p game
@@ -143,50 +143,50 @@ jobs:
           <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-          <title>Стекольщик 3D · 3.2</title>
+          <title>Стекольщик 3D · 3.5 PBR</title>
           <style>
-          html,body{margin:0;height:100%;overflow:hidden;background:#87b8d8;touch-action:none;
+          html,body{margin:0;height:100%;overflow:hidden;background:#689cc2;touch-action:none;
             user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
             font-family:system-ui,-apple-system,Roboto,"Segoe UI",sans-serif}
           canvas{display:block}
-          #vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(10,14,20,0.32) 100%);mix-blend-mode:multiply}
+          #vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(6,10,18,0.42) 100%)}
           #toolPanel{position:fixed;right:12px;bottom:14px;z-index:7;display:flex;flex-direction:column;gap:7px;pointer-events:auto;max-width:34vw}
-          .toolBtn{border:1px solid #ffffff55;border-radius:12px;background:rgba(20,29,41,.94);color:#fff;padding:9px 12px;font-size:13px;font-weight:850;box-shadow:0 3px 0 #0004;white-space:nowrap;transition:transform .12s,background .12s}
-          .toolBtn.active{background:#f0a500;color:#17202b;border-color:#ffe29a;transform:translateX(-3px)}
-          #toolStatus{position:fixed;left:12px;bottom:12px;z-index:7;background:rgba(20,29,41,.9);color:#fff;border:1px solid #ffffff2c;border-radius:12px;padding:8px 11px;font-size:12px;font-weight:800;pointer-events:none;max-width:52vw}
+          .toolBtn{border:1px solid rgba(255,255,255,.25);border-radius:14px;background:linear-gradient(145deg,rgba(22,32,46,.95),rgba(13,20,30,.95));color:#fff;padding:10px 13px;font-size:13px;font-weight:850;box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.15);white-space:nowrap;transition:transform .14s,background .14s,border-color .14s;backdrop-filter:blur(6px)}
+          .toolBtn.active{background:linear-gradient(145deg,#ffb703,#fb8500);color:#111822;border-color:#ffe699;transform:translateX(-4px);box-shadow:0 6px 18px rgba(251,133,0,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+          #toolStatus{position:fixed;left:12px;bottom:12px;z-index:7;background:linear-gradient(145deg,rgba(20,29,41,.92),rgba(12,18,28,.92));color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-size:12px;font-weight:800;pointer-events:none;max-width:52vw;box-shadow:0 6px 18px rgba(0,0,0,.35);backdrop-filter:blur(6px)}
           #toolStatus small{display:block;color:#b9c5d3;font-weight:600;margin-top:3px}
           @media (orientation:landscape){#hud{padding:8px 10px 0}#money{font-size:19px;padding:6px 13px}#rank{font-size:11px;padding:6px 9px;margin-top:5px}#repCard{font-size:10px;padding:5px 8px}#upBtn{font-size:14px;padding:8px 13px}#hint{top:10px;font-size:13px;max-width:42vw;overflow:hidden;text-overflow:ellipsis}#toolPanel{right:10px;bottom:10px;gap:5px}.toolBtn{font-size:12px;padding:7px 9px}#toolStatus{left:10px;bottom:10px}}
           #hud{position:fixed;left:0;right:0;top:0;padding:12px 12px 0;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5}
-          #money{background:rgba(20,26,36,.88);color:#ffd166;font-weight:800;font-size:22px;padding:8px 16px;border-radius:24px;min-width:90px}
-          #rank{background:rgba(20,26,36,.88);color:#fff;font-weight:800;font-size:13px;padding:8px 12px;border-radius:16px;margin-top:7px;min-width:130px;box-shadow:0 2px 8px #0003}
-          #rank .bar{height:6px;background:#3a4658;border-radius:8px;margin-top:6px;overflow:hidden}
+          #money{background:linear-gradient(145deg,rgba(20,28,40,.92),rgba(12,18,28,.92));color:#ffd166;font-weight:900;font-size:22px;padding:8px 16px;border-radius:24px;min-width:90px;border:1px solid rgba(255,209,102,.3);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+          #rank{background:linear-gradient(145deg,rgba(20,28,40,.92),rgba(12,18,28,.92));color:#fff;font-weight:800;font-size:13px;padding:8px 12px;border-radius:16px;margin-top:7px;min-width:130px;border:1px solid rgba(255,255,255,.12);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+          #rank .bar{height:6px;background:#2b3648;border-radius:8px;margin-top:6px;overflow:hidden}
           #rankFill{height:100%;width:0;background:linear-gradient(90deg,#f07818,#ffd166);border-radius:8px}
           #rank small{color:#b9c5d3;font-weight:600}
-          #repCard{background:rgba(20,26,36,.88);color:#fff;font-size:12px;font-weight:800;padding:7px 11px;border-radius:13px;margin-top:5px;min-width:130px;box-shadow:0 2px 8px #0003}
-          #repCard .bar{height:5px;background:#3a4658;border-radius:8px;margin-top:5px;overflow:hidden}
+          #repCard{background:linear-gradient(145deg,rgba(20,28,40,.92),rgba(12,18,28,.92));color:#fff;font-size:12px;font-weight:800;padding:7px 11px;border-radius:13px;margin-top:5px;min-width:130px;border:1px solid rgba(255,255,255,.12);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+          #repCard .bar{height:5px;background:#2b3648;border-radius:8px;margin-top:5px;overflow:hidden}
           #repFill{height:100%;width:50%;background:linear-gradient(90deg,#e05252,#ffd166,#48bb78);border-radius:8px}
           #comboBadge{display:none;background:linear-gradient(90deg,#f07818,#ffd166);color:#17202b;font-size:11px;font-weight:900;padding:4px 10px;border-radius:10px;margin-top:5px;box-shadow:0 2px 8px #0004}
-          #progressCard{background:#202b3a;border:1px solid #3b4b61;border-radius:14px;padding:12px;margin-bottom:12px}
+          #progressCard{background:#1b2533;border:1px solid #334459;border-radius:14px;padding:12px;margin-bottom:12px}
           #progressCard .big{font-size:18px;font-weight:900;color:#ffd166}
           #progressCard .muted{font-size:13px;color:#bdc7d5;line-height:1.45;margin-top:5px}
-          #progressCard .contract{margin-top:9px;padding:9px;background:#2b394c;border-radius:10px;font-size:13px;line-height:1.4}
-          #upBtn{pointer-events:auto;background:#f0a500;color:#1b2330;border:0;font-weight:800;font-size:16px;padding:10px 16px;border-radius:24px;box-shadow:0 3px 0 #a87300}
-          #hint{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:rgba(20,26,36,.75);color:#fff;font-weight:700;font-size:15px;padding:8px 16px;border-radius:18px;white-space:nowrap;pointer-events:none;z-index:5;transition:opacity .3s}
-          #joy{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.5);display:none;pointer-events:none;z-index:6}
-          #knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(255,255,255,.85)}
-          .pop{position:fixed;font-weight:900;font-size:22px;color:#ffd166;text-shadow:0 2px 0 #6b4b00,0 0 6px rgba(0,0,0,.4);pointer-events:none;z-index:4;transform:translate(-50%,-50%);white-space:nowrap}
-          #panel{position:fixed;inset:0;background:rgba(10,14,22,.6);display:none;align-items:center;justify-content:center;z-index:10}
-          #panel .box{background:#1f2836;border-radius:20px;padding:18px;width:min(92vw,400px);color:#fff;max-height:88vh;overflow:auto}
-          #panel h2{margin:0 0 12px;font-size:22px;text-align:center;color:#f0a500}
-          .up{display:flex;align-items:center;gap:10px;background:#2a3446;border-radius:14px;padding:10px 12px;margin-bottom:10px}
+          #progressCard .contract{margin-top:9px;padding:9px;background:#253346;border-radius:10px;font-size:13px;line-height:1.4}
+          #upBtn{pointer-events:auto;background:linear-gradient(145deg,#ffb703,#fb8500);color:#111822;border:1px solid #ffe699;font-weight:900;font-size:16px;padding:10px 16px;border-radius:24px;box-shadow:0 4px 14px rgba(251,133,0,.4)}
+          #hint{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:rgba(16,22,32,.85);color:#fff;font-weight:700;font-size:15px;padding:8px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.15);white-space:nowrap;pointer-events:none;z-index:5;transition:opacity .3s}
+          #joy{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.45);display:none;pointer-events:none;z-index:6;backdrop-filter:blur(3px)}
+          #knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffffff,#cbd5e1);box-shadow:0 4px 10px rgba(0,0,0,.35)}
+          .pop{position:fixed;font-weight:900;font-size:22px;color:#ffd166;text-shadow:0 2px 0 #4a3200,0 0 8px rgba(0,0,0,.5);pointer-events:none;z-index:4;transform:translate(-50%,-50%);white-space:nowrap}
+          #panel{position:fixed;inset:0;background:rgba(8,12,20,.68);display:none;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(4px)}
+          #panel .box{background:#18212e;border:1px solid #2e3e52;border-radius:20px;padding:18px;width:min(92vw,400px);color:#fff;max-height:88vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+          #panel h2{margin:0 0 12px;font-size:22px;text-align:center;color:#ffb703}
+          .up{display:flex;align-items:center;gap:10px;background:#222e40;border:1px solid #2f3f56;border-radius:14px;padding:10px 12px;margin-bottom:10px}
           .up .t{flex:1}.up .n{font-weight:800;font-size:16px}.up .d{font-size:13px;color:#a0aec0;margin-top:2px}
           .up .lv{font-size:12px;color:#48bb78;margin-top:4px}
-          .up button{border:0;border-radius:12px;padding:10px 12px;font-weight:800;font-size:15px;background:#f0a500;color:#1b2330;min-width:84px;transition:transform .12s,filter .12s}
+          .up button{border:0;border-radius:12px;padding:10px 12px;font-weight:800;font-size:15px;background:linear-gradient(145deg,#ffb703,#fb8500);color:#111822;min-width:84px;transition:transform .12s,filter .12s}
           .up button:active{transform:scale(.95);filter:brightness(1.15)}
-          .up button.no{background:#4a5568;color:#a0aec0}
-          #close{display:block;width:100%;margin-top:6px;border:0;border-radius:14px;padding:12px;font-weight:800;font-size:16px;background:#4a5568;color:#fff}
+          .up button.no{background:#3b4659;color:#8c9ab0}
+          #close{display:block;width:100%;margin-top:6px;border:0;border-radius:14px;padding:12px;font-weight:800;font-size:16px;background:#3b4659;color:#fff}
           #reset{display:block;width:100%;margin-top:8px;border:0;background:none;color:#718096;font-size:13px;padding:6px}
-          #toast{position:fixed;left:50%;top:28%;transform:translate(-50%,-12px) scale(.92);opacity:0;pointer-events:none;z-index:20;background:linear-gradient(135deg,#202b3a,#34465c);border:2px solid #f0a500;color:#fff;border-radius:18px;padding:14px 20px;text-align:center;min-width:190px;max-width:82vw;box-shadow:0 12px 36px #0008;transition:opacity .22s,transform .22s}
+          #toast{position:fixed;left:50%;top:28%;transform:translate(-50%,-12px) scale(.92);opacity:0;pointer-events:none;z-index:20;background:linear-gradient(135deg,#1b2534,#2d3e54);border:2px solid #ffb703;color:#fff;border-radius:18px;padding:14px 20px;text-align:center;min-width:190px;max-width:82vw;box-shadow:0 12px 36px #0009;transition:opacity .22s,transform .22s}
           #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
           #toast .icon{font-size:30px;display:block;margin-bottom:4px}
           #toast .title{font-weight:900;font-size:18px;color:#ffd166}
@@ -240,6 +240,7 @@ jobs:
           <script src="three.min.js"></script>
           <script>
           'use strict';
+          // ================== Константы мира ==================
           const BAYX = [-2, 4, 10];
           const CAR_Z = -7.4;
           const WORK_Z = -3.5;
@@ -248,16 +249,17 @@ jobs:
           const WARE = { x: -4, z: 6.0 };
           const CASH = { x: 9.5, z: 5.3 };
           const BOUNDS = { x0: -6.4, x1: 15.4, z0: -4.7, z1: 10.2 };
+
           const CAR_TYPES = [
-            { name: 'Хэтчбек', price: 40, s: [1, 1, 0.95], need: 0 },
-            { name: 'Седан', price: 60, s: [1, 1, 1.08], need: 1 },
-            { name: 'Внедорожник', price: 90, s: [1.1, 1.25, 1.1], need: 3 },
-            { name: 'Универсал', price: 75, s: [1.02, 1.08, 1.18], need: 2 },
-            { name: 'Купе', price: 105, s: [1.03, 0.88, 1.02], need: 4 },
-            { name: 'Премиум-кроссовер', price: 125, s: [1.16, 1.3, 1.16], need: 5 },
-            { name: 'Грузовик', price: 140, s: [1.18, 1.45, 1.22], need: 6 },
+            { name: 'Хэтчбек', price: 40, s: [1, 1, 0.96], need: 0 },
+            { name: 'Седан', price: 60, s: [1.02, 1, 1.08], need: 1 },
+            { name: 'Внедорожник', price: 90, s: [1.1, 1.2, 1.1], need: 3 },
+            { name: 'Универсал', price: 75, s: [1.02, 1.05, 1.16], need: 2 },
+            { name: 'Купе', price: 105, s: [1.05, 0.9, 1.04], need: 4 },
+            { name: 'Премиум-кроссовер', price: 125, s: [1.14, 1.24, 1.15], need: 5 },
+            { name: 'Грузовик', price: 140, s: [1.16, 1.38, 1.22], need: 6 },
           ];
-          const CAR_COLORS = [0xc0392b, 0x2e86de, 0xecf0f1, 0x2d3436, 0x27ae60, 0xf39c12, 0x8e44ad, 0x7f8c8d, 0x16a085, 0xe17055];
+          const CAR_COLORS = [0xb81d24, 0x1d63b8, 0xe8edf2, 0x1c2127, 0x1b7a43, 0xd97706, 0x5b21b6, 0x64748b, 0x0f766e, 0xc2410c];
           const SERVICES = {
             replacement: { label: 'ЗАМЕНА', icon: '🪟', tool: 'replacement', price: 1.45, name: 'Замена лобового' },
             repair: { label: 'РЕМОНТ', icon: '🛠', tool: 'repair', price: 1, name: 'Ремонт стекла' },
@@ -266,6 +268,7 @@ jobs:
           const SERVICE_KEYS = Object.keys(SERVICES);
           let selectedTool = 'replacement';
           let fastStreak = 0;
+
           const ZONES = [
             { id: 'bay2', name: 'Бокс 2', cost: 150, x: 4, z: WORK_Z, req: [] },
             { id: 'loader1', name: 'Грузчик', cost: 250, x: -0.6, z: 6.6, req: ['bay2'] },
@@ -276,6 +279,7 @@ jobs:
             { id: 'mech3', name: 'Мастер', cost: 900, x: 7.6, z: WORK_Z, req: ['mech2'] },
             { id: 'loader2', name: 'Грузчик', cost: 1000, x: 1.8, z: 6.6, req: ['mech3'] },
           ];
+
           const UPGS = [
             { k: 'speed', name: 'Кроссовки', desc: 'Быстрее бегаешь', base: 60, max: 5 },
             { k: 'cap', name: 'Крепкая спина', desc: '+1 к переносимым стеклам, наборам и плёнкам', base: 80, max: 5 },
@@ -283,6 +287,8 @@ jobs:
             { k: 'price', name: 'Реклама', desc: '+15% к оплате', base: 150, max: 5 },
             { k: 'staff', name: 'Обучение персонала', desc: 'Работники быстрее', base: 200, max: 5 },
           ];
+
+          // ================== Сохранение ==================
           let save = { money: 0, unlocked: [], paid: {}, up: {}, cars: 0, xp: 0, level: 1, contractClaimed: 0, reputation: 50 };
           try { const s = JSON.parse(localStorage.getItem('steklo3d') || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
           UPGS.forEach(u => { if (save.up[u.k] == null) save.up[u.k] = 0; });
@@ -299,68 +305,288 @@ jobs:
           const priceMul = () => (1 + 0.15 * save.up.price) * (0.8 + save.reputation * 0.004);
           const staffMul = () => 1 + 0.2 * save.up.staff;
           const upCost = u => Math.round(u.base * Math.pow(save.up[u.k] + 1, 1.7));
-          const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+          // ================== Three.js & PBR Renderer ==================
+          const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
           renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
           renderer.shadowMap.enabled = true;
           renderer.shadowMap.type = THREE.PCFSoftShadowMap;
           renderer.outputColorSpace = THREE.SRGBColorSpace;
           renderer.toneMapping = THREE.ACESFilmicToneMapping;
-          renderer.toneMappingExposure = 1.12;
+          renderer.toneMappingExposure = 1.16;
           document.body.appendChild(renderer.domElement);
+
           const scene = new THREE.Scene();
-          scene.background = new THREE.Color(0x9fd0ea);
-          scene.fog = new THREE.Fog(0x9fd0ea, 46, 92);
-          const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 200);
-          function canvasTex(w, h, draw) {
+          scene.background = new THREE.Color(0x88b8d6);
+          scene.fog = new THREE.FogExp2(0x9bc5df, 0.012);
+          const camera = new THREE.PerspectiveCamera(48, 1, 0.5, 200);
+          const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy() || 4);
+
+          function canvasTex(w, h, draw, srgb = true) {
             const c = document.createElement('canvas'); c.width = w; c.height = h;
             draw(c.getContext('2d'), w, h);
-            const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+            const t = new THREE.CanvasTexture(c);
+            t.anisotropy = maxAniso;
+            if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+            return t;
           }
+          function tiledTex(w, h, rx, ry, draw, srgb = true) {
+            const t = canvasTex(w, h, draw, srgb);
+            t.wrapS = t.wrapT = THREE.RepeatWrapping;
+            t.repeat.set(rx, ry);
+            t.userData = { shared: true };
+            return t;
+          }
+
+          // ---- Небесный купол с облаками и атмосферным рассеиванием ----
           (function skyDome() {
-            const skyTex = canvasTex(64, 256, (g, W, H) => {
+            const skyTex = canvasTex(512, 256, (g, W, H) => {
               const grad = g.createLinearGradient(0, 0, 0, H);
-              grad.addColorStop(0, '#5aa3d8');
-              grad.addColorStop(0.45, '#9fd0ea');
-              grad.addColorStop(0.78, '#cfe9f2');
-              grad.addColorStop(1, '#eaf6e9');
+              grad.addColorStop(0, '#2a6ca8');
+              grad.addColorStop(0.38, '#66a6d6');
+              grad.addColorStop(0.72, '#b8dcf0');
+              grad.addColorStop(1, '#e6f0e6');
               g.fillStyle = grad; g.fillRect(0, 0, W, H);
+              for (let i = 0; i < 45; i++) {
+                const cx = Math.random() * W, cy = H * (0.28 + Math.random() * 0.35), r = 18 + Math.random() * 48;
+                const cg = g.createRadialGradient(cx, cy, 2, cx, cy, r);
+                cg.addColorStop(0, 'rgba(255,255,255,0.28)');
+                cg.addColorStop(1, 'rgba(255,255,255,0)');
+                g.fillStyle = cg; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+              }
             });
-            skyTex.wrapS = THREE.ClampToEdgeWrapping; skyTex.wrapT = THREE.ClampToEdgeWrapping;
-            const sky = new THREE.Mesh(new THREE.SphereGeometry(140, 24, 16),
+            const sky = new THREE.Mesh(new THREE.SphereGeometry(145, 28, 18),
               new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide, fog: false, depthWrite: false }));
             sky.renderOrder = -10;
             scene.add(sky);
           })();
+
+          // ---- PBR Environment Map со студийными софтбоксами для реалистичных бликов на авто ----
           const pmrem = new THREE.PMREMGenerator(renderer);
           pmrem.compileEquirectangularShader();
           const envScene = new THREE.Scene();
           envScene.background = (() => {
-            const t = canvasTex(16, 128, (g, W, H) => {
+            const t = canvasTex(512, 256, (g, W, H) => {
               const grad = g.createLinearGradient(0, 0, 0, H);
-              grad.addColorStop(0, '#cfe8ff');
-              grad.addColorStop(0.45, '#ffffff');
-              grad.addColorStop(0.55, '#dce7d4');
-              grad.addColorStop(1, '#6b8f57');
+              grad.addColorStop(0, '#1e5799');
+              grad.addColorStop(0.42, '#b8dcff');
+              grad.addColorStop(0.49, '#ffffff');
+              grad.addColorStop(0.52, '#5a636b');
+              grad.addColorStop(1, '#262d35');
               g.fillStyle = grad; g.fillRect(0, 0, W, H);
+              // Яркие студийные лампы-софтбоксы в карте отражений
+              g.fillStyle = '#ffffff';
+              for (let i = 0; i < 4; i++) {
+                g.fillRect(35 + i * 125, 38, 82, 18);
+                g.fillRect(55 + i * 120, 78, 60, 10);
+              }
             });
             t.mapping = THREE.EquirectangularReflectionMapping;
             return t;
           })();
-          const envMap = pmrem.fromScene(envScene, 0.04).texture;
+          const envMap = pmrem.fromScene(envScene, 0.025).texture;
           envMap.userData = { shared: true };
           envScene.background = null;
           pmrem.dispose();
-          scene.add(new THREE.HemisphereLight(0xffffff, 0x64735a, 1.0));
-          const sun = new THREE.DirectionalLight(0xfff1d8, 2.1);
+          scene.environment = envMap;
+
+          // ================== Генератор процедурных PBR-текстур и карт рельефа ==================
+          const TEX = {
+            // 1. Эпоксидный плиточный пол мастерской
+            shopFloorMap: tiledTex(256, 256, 12, 11, (g, W, H) => {
+              g.fillStyle = '#cbd2da'; g.fillRect(0, 0, W, H);
+              for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) {
+                const v = 205 + ((x + y) % 2) * 8 + (Math.random() * 6 - 3);
+                g.fillStyle = `rgb(${v},${v + 4},${v + 9})`;
+                g.fillRect(x * 64 + 2, y * 64 + 2, 60, 60);
+                // диагональный блик на плитке
+                g.fillStyle = 'rgba(255,255,255,0.08)';
+                g.beginPath(); g.moveTo(x * 64 + 2, y * 64 + 2); g.lineTo(x * 64 + 42, y * 64 + 2); g.lineTo(x * 64 + 2, y * 64 + 42); g.fill();
+              }
+              for (let i = 0; i < 900; i++) {
+                g.fillStyle = i % 2 ? 'rgba(255,255,255,0.12)' : 'rgba(30,45,60,0.08)';
+                g.fillRect(Math.random() * W, Math.random() * H, 2, 2);
+              }
+              g.strokeStyle = '#909ba8'; g.lineWidth = 3;
+              for (let i = 0; i <= W; i += 64) {
+                g.beginPath(); g.moveTo(i, 0); g.lineTo(i, H); g.stroke();
+                g.beginPath(); g.moveTo(0, i); g.lineTo(W, i); g.stroke();
+              }
+            }),
+            shopFloorBump: tiledTex(256, 256, 12, 11, (g, W, H) => {
+              g.fillStyle = '#e0e0e0'; g.fillRect(0, 0, W, H);
+              g.strokeStyle = '#252525'; g.lineWidth = 4;
+              for (let i = 0; i <= W; i += 64) {
+                g.beginPath(); g.moveTo(i, 0); g.lineTo(i, H); g.stroke();
+                g.beginPath(); g.moveTo(0, i); g.lineTo(W, i); g.stroke();
+              }
+              for (let i = 0; i < 600; i++) {
+                g.fillStyle = i % 2 ? '#ffffff' : '#b8b8b8';
+                g.fillRect(Math.random() * W, Math.random() * H, 2, 2);
+              }
+            }, false),
+
+            // 2. Резиновое антискользящее покрытие рабочего бокса
+            bayFloorMap: tiledTex(256, 256, 3, 3, (g, W, H) => {
+              g.fillStyle = '#333d4b'; g.fillRect(0, 0, W, H);
+              g.strokeStyle = '#252d38'; g.lineWidth = 3;
+              for (let i = 0; i <= W; i += 64) {
+                g.beginPath(); g.moveTo(i, 0); g.lineTo(i, H); g.stroke();
+                g.beginPath(); g.moveTo(0, i); g.lineTo(W, i); g.stroke();
+              }
+              for (let y = 8; y < H; y += 16) for (let x = 8; x < W; x += 16) {
+                g.fillStyle = '#435062'; g.beginPath(); g.arc(x, y, 3.2, 0, Math.PI * 2); g.fill();
+                g.fillStyle = '#222933'; g.beginPath(); g.arc(x + 1, y + 1, 2.2, 0, Math.PI * 2); g.fill();
+              }
+            }),
+            bayFloorBump: tiledTex(256, 256, 3, 3, (g, W, H) => {
+              g.fillStyle = '#808080'; g.fillRect(0, 0, W, H);
+              for (let y = 8; y < H; y += 16) for (let x = 8; x < W; x += 16) {
+                g.fillStyle = '#ffffff'; g.beginPath(); g.arc(x, y, 3.5, 0, Math.PI * 2); g.fill();
+              }
+            }, false),
+
+            // 3. Черно-желтая сигнальная разметка бокса
+            hazardMap: tiledTex(128, 128, 1, 14, (g, W, H) => {
+              g.fillStyle = '#eab308'; g.fillRect(0, 0, W, H);
+              g.fillStyle = '#181d24';
+              for (let i = -H; i < W + H; i += 32) {
+                g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 16, 0); g.lineTo(i - 16, H); g.lineTo(i - 32, H); g.fill();
+              }
+            }),
+
+            // 4. Зернистый асфальт
+            asphaltMap: tiledTex(256, 256, 3, 18, (g, W, H) => {
+              g.fillStyle = '#2d323a'; g.fillRect(0, 0, W, H);
+              for (let i = 0; i < 4500; i++) {
+                const v = 32 + Math.floor(Math.random() * 38);
+                g.fillStyle = `rgb(${v},${v + 2},${v + 5})`;
+                g.fillRect(Math.random() * W, Math.random() * H, 2, 2);
+              }
+            }),
+            asphaltBump: tiledTex(256, 256, 3, 18, (g, W, H) => {
+              g.fillStyle = '#808080'; g.fillRect(0, 0, W, H);
+              for (let i = 0; i < 4500; i++) {
+                const v = Math.floor(Math.random() * 255);
+                g.fillStyle = `rgb(${v},${v},${v})`;
+                g.fillRect(Math.random() * W, Math.random() * H, 2, 2);
+              }
+            }, false),
+
+            // 5. Индустриальные стеновые сэндвич-панели
+            wallMap: tiledTex(256, 256, 6, 1, (g, W, H) => {
+              const grad = g.createLinearGradient(0, 0, 0, H);
+              grad.addColorStop(0, '#eef2f6');
+              grad.addColorStop(0.76, '#dce3ec');
+              grad.addColorStop(0.77, '#f59e0b');
+              grad.addColorStop(0.83, '#d97706');
+              grad.addColorStop(0.84, '#334155');
+              grad.addColorStop(1, '#1e293b');
+              g.fillStyle = grad; g.fillRect(0, 0, W, H);
+              for (let x = 0; x < W; x += 32) {
+                g.fillStyle = 'rgba(0,0,0,0.08)'; g.fillRect(x, 0, 3, H * 0.76);
+                g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(x + 3, 0, 2, H * 0.76);
+              }
+            }),
+            wallBump: tiledTex(256, 256, 6, 1, (g, W, H) => {
+              g.fillStyle = '#b0b0b0'; g.fillRect(0, 0, W, H);
+              for (let x = 0; x < W; x += 32) {
+                g.fillStyle = '#303030'; g.fillRect(x, 0, 4, H);
+                g.fillStyle = '#ffffff'; g.fillRect(x + 4, 0, 4, H);
+              }
+            }, false),
+
+            // 6. Деревянная стойка кассы под лаком
+            woodMap: tiledTex(256, 256, 2, 1, (g, W, H) => {
+              g.fillStyle = '#7c4d30'; g.fillRect(0, 0, W, H);
+              for (let y = 0; y < H; y += 3) {
+                g.fillStyle = y % 6 === 0 ? 'rgba(45,22,8,0.22)' : 'rgba(210,145,95,0.14)';
+                g.fillRect(0, y, W, 2);
+              }
+              g.strokeStyle = 'rgba(35,16,5,0.35)'; g.lineWidth = 2;
+              for (let y = 0; y < H; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+            }),
+
+            // 7. Рифленый металл (стеллажи, тележки, оборудование)
+            metalBump: tiledTex(128, 128, 3, 3, (g, W, H) => {
+              g.fillStyle = '#808080'; g.fillRect(0, 0, W, H);
+              g.fillStyle = '#ffffff';
+              for (let y = 0; y < H; y += 16) for (let x = 0; x < W; x += 16) {
+                g.fillRect(x + 3, y + 6, 10, 4);
+                g.fillRect(x + 6, y + 3, 4, 10);
+              }
+            }, false),
+
+            // 8. Микрорельеф автоэмали и ткани одежды
+            flakeBump: tiledTex(128, 128, 6, 6, (g, W, H) => {
+              g.fillStyle = '#808080'; g.fillRect(0, 0, W, H);
+              for (let i = 0; i < 1600; i++) {
+                const v = 100 + Math.floor(Math.random() * 110);
+                g.fillStyle = `rgb(${v},${v},${v})`;
+                g.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
+              }
+            }, false),
+            fabricBump: tiledTex(64, 64, 8, 8, (g, W, H) => {
+              g.fillStyle = '#808080'; g.fillRect(0, 0, W, H);
+              g.fillStyle = '#b5b5b5';
+              for (let y = 0; y < H; y += 4) for (let x = (y % 8 ? 2 : 0); x < W; x += 4) g.fillRect(x, y, 2, 2);
+            }, false),
+
+            // 9. Боковина шины с протектором
+            tireBump: canvasTex(128, 128, (g, W, H) => {
+              g.fillStyle = '#505050'; g.fillRect(0, 0, W, H);
+              g.strokeStyle = '#ffffff'; g.lineWidth = 5;
+              for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+                g.beginPath();
+                g.moveTo(64 + Math.cos(a) * 42, 64 + Math.sin(a) * 42);
+                g.lineTo(64 + Math.cos(a) * 62, 64 + Math.sin(a) * 62);
+                g.stroke();
+              }
+            }, false),
+
+            // 10. Купюры
+            banknoteMap: canvasTex(128, 64, (g, W, H) => {
+              g.fillStyle = '#2e7d32'; g.fillRect(0, 0, W, H);
+              g.strokeStyle = '#a5d6a7'; g.lineWidth = 4; g.strokeRect(6, 6, W - 12, H - 12);
+              g.fillStyle = '#66bb6a'; g.beginPath(); g.arc(W / 2, H / 2, 14, 0, Math.PI * 2); g.fill();
+              g.fillStyle = '#e8f5e9'; g.font = 'bold 20px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle';
+              g.fillText('₽', W / 2, H / 2 + 1);
+            })
+          };
+          TEX.tireBump.userData = { shared: true };
+          TEX.banknoteMap.userData = { shared: true };
+
+          // ---- Освещение сцены ----
+          scene.add(new THREE.HemisphereLight(0xf2f8ff, 0x45523e, 0.95));
+          const sun = new THREE.DirectionalLight(0xfff4df, 2.25);
           sun.castShadow = true;
           sun.shadow.mapSize.set(2048, 2048);
-          Object.assign(sun.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 1, far: 60 });
-          sun.shadow.bias = -0.001;
-          sun.shadow.radius = 2.2;
+          Object.assign(sun.shadow.camera, { left: -19, right: 19, top: 19, bottom: -19, near: 1, far: 60 });
+          sun.shadow.bias = -0.0008;
+          sun.shadow.radius = 2.0;
           scene.add(sun, sun.target);
-          const fill = new THREE.DirectionalLight(0xaecfff, 0.45);
+
+          const fill = new THREE.DirectionalLight(0x9ec5ff, 0.55);
           scene.add(fill, fill.target);
-          const M = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.72, metalness: 0.04 });
+
+          // Универсальный фабричный метод PBR-материалов вместо плоского «пластилина»
+          const matCache = {};
+          function M(c, opts = {}) {
+            const key = c + '_' + (opts.r || 0.42) + '_' + (opts.m || 0.08) + '_' + (opts.b || '');
+            if (matCache[key]) return matCache[key];
+            const mat = new THREE.MeshStandardMaterial({
+              color: c,
+              roughness: opts.r !== undefined ? opts.r : 0.42,
+              metalness: opts.m !== undefined ? opts.m : 0.08,
+              bumpMap: opts.b === 'fabric' ? TEX.fabricBump : opts.b === 'metal' ? TEX.metalBump : TEX.flakeBump,
+              bumpScale: opts.bs !== undefined ? opts.bs : 0.006,
+              envMapIntensity: opts.env !== undefined ? opts.env : 0.95
+            });
+            mat.userData = { shared: true };
+            matCache[key] = mat;
+            return mat;
+          }
+
           const box = (w, h, d, mat, x = 0, y = 0, z = 0, cast = true) => {
             const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
             m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; return m;
@@ -373,8 +599,8 @@ jobs:
             shape.lineTo(-w / 2 + r, h / 2); shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
             shape.lineTo(-w / 2, -h / 2 + r); shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
             const depth = Math.max(0.05, d - r * 1.2);
-            const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: r * 0.28, bevelThickness: r * 0.28, curveSegments: 5 });
-            geo.translate(0, 0, -depth / 2 - r * 0.28);
+            const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSegments: 4, steps: 1, bevelSize: r * 0.32, bevelThickness: r * 0.32, curveSegments: 6 });
+            geo.translate(0, 0, -depth / 2 - r * 0.32);
             const mesh = new THREE.Mesh(geo, mat); mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; return mesh;
           }
           const flat = (w, d, mat, x, y, z) => {
@@ -384,106 +610,186 @@ jobs:
           function label(text, w, size, color = '#ffffff', x, z, rot = 0) {
             const tex = canvasTex(512, 128, (g, W, H) => {
               g.font = `900 ${size}px system-ui,Roboto,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-              g.lineWidth = 10; g.strokeStyle = 'rgba(0,0,0,0.35)'; g.strokeText(text, W / 2, H / 2);
+              g.lineWidth = 12; g.strokeStyle = 'rgba(15,23,42,0.55)'; g.strokeText(text, W / 2, H / 2);
               g.fillStyle = color; g.fillText(text, W / 2, H / 2);
             });
             const m = flat(w, w / 4, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }), x, 0.06, z);
             m.rotation.z = rot; scene.add(m); return m;
           }
-          const crackTex = canvasTex(256, 128, (g, W, H) => {
-            g.fillStyle = '#6fa8cf'; g.fillRect(0, 0, W, H);
-            g.fillStyle = 'rgba(255,255,255,0.25)'; g.beginPath(); g.moveTo(60, 0); g.lineTo(100, 0); g.lineTo(50, H); g.lineTo(10, H); g.fill();
-            const cx = 150, cy = 55; g.strokeStyle = '#fff'; g.lineWidth = 2.5;
-            for (let i = 0; i < 12; i++) {
-              let a = i / 12 * Math.PI * 2, x = cx, y = cy; g.beginPath(); g.moveTo(x, y);
-              for (let s = 0; s < 5; s++) { a += (Math.random() - .5) * .6; x += Math.cos(a) * 22; y += Math.sin(a) * 14; g.lineTo(x, y); }
+
+          // ---- Текстуры лобового стекла ----
+          const crackTex = canvasTex(512, 256, (g, W, H) => {
+            const grad = g.createLinearGradient(0, 0, W, H);
+            grad.addColorStop(0, '#4f86b0'); grad.addColorStop(0.5, '#77b5df'); grad.addColorStop(1, '#3b698c');
+            g.fillStyle = grad; g.fillRect(0, 0, W, H);
+            // темная шелкография (окантовка стекла)
+            g.strokeStyle = '#111822'; g.lineWidth = 18; g.strokeRect(0, 0, W, H);
+            // блики
+            g.fillStyle = 'rgba(255,255,255,0.28)';
+            g.beginPath(); g.moveTo(110, 0); g.lineTo(190, 0); g.lineTo(95, H); g.lineTo(15, H); g.fill();
+            // реалистичная паутина трещин
+            const cx = 310, cy = 115;
+            g.strokeStyle = 'rgba(255,255,255,0.92)'; g.lineWidth = 3.2;
+            for (let i = 0; i < 16; i++) {
+              let a = i / 16 * Math.PI * 2, x = cx, y = cy;
+              g.beginPath(); g.moveTo(x, y);
+              for (let s = 0; s < 6; s++) {
+                a += (Math.random() - 0.5) * 0.45;
+                x += Math.cos(a) * 32; y += Math.sin(a) * 22;
+                g.lineTo(x, y);
+              }
               g.stroke();
             }
-            g.beginPath(); g.arc(cx, cy, 16, 0, 7); g.stroke(); g.beginPath(); g.arc(cx, cy, 32, 0, 7); g.stroke();
-            g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy, 5, 0, 7); g.fill();
+            g.lineWidth = 2.2;
+            for (const r of [24, 48, 76]) { g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke(); }
+            g.fillStyle = '#ffffff'; g.beginPath(); g.arc(cx, cy, 8, 0, Math.PI * 2); g.fill();
           });
           crackTex.userData = { shared: true };
-          const cleanTex = canvasTex(256, 128, (g, W, H) => {
-            g.fillStyle = '#7dbbe3'; g.fillRect(0, 0, W, H);
-            g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.moveTo(60, 0); g.lineTo(110, 0); g.lineTo(60, H); g.lineTo(10, H); g.fill();
-            g.fillStyle = 'rgba(255,255,255,0.2)'; g.beginPath(); g.moveTo(130, 0); g.lineTo(150, 0); g.lineTo(100, H); g.lineTo(80, H); g.fill();
+
+          const cleanTex = canvasTex(512, 256, (g, W, H) => {
+            const grad = g.createLinearGradient(0, 0, W, H);
+            grad.addColorStop(0, '#5a9bc8'); grad.addColorStop(0.5, '#92ccf0'); grad.addColorStop(1, '#4882ad');
+            g.fillStyle = grad; g.fillRect(0, 0, W, H);
+            g.strokeStyle = '#111822'; g.lineWidth = 18; g.strokeRect(0, 0, W, H);
+            g.fillStyle = 'rgba(255,255,255,0.38)';
+            g.beginPath(); g.moveTo(110, 0); g.lineTo(205, 0); g.lineTo(110, H); g.lineTo(15, H); g.fill();
+            g.fillStyle = 'rgba(255,255,255,0.2)';
+            g.beginPath(); g.moveTo(240, 0); g.lineTo(275, 0); g.lineTo(180, H); g.lineTo(145, H); g.fill();
           });
           cleanTex.userData = { shared: true };
-          const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x9fd6f5, roughness: 0.1, metalness: 0, transparent: true, opacity: 0.92, clearcoat: 1, clearcoatRoughness: 0.08, transmission: 0.55, thickness: 0.3, ior: 1.52, envMap, envMapIntensity: 1.1 });
+
+          const glassMat = new THREE.MeshPhysicalMaterial({
+            color: 0xa8e0ff, roughness: 0.06, metalness: 0.05, transparent: true, opacity: 0.9,
+            clearcoat: 1, clearcoatRoughness: 0.04, reflectivity: 0.95, envMap, envMapIntensity: 1.4
+          });
           glassMat.userData = { shared: true };
-          const moneyMat = new THREE.MeshLambertMaterial({ color: 0x4caf50, emissive: 0x0d3b10 });
+
+          const moneyMat = new THREE.MeshStandardMaterial({ map: TEX.banknoteMap, roughness: 0.55, metalness: 0.05 });
           moneyMat.userData = { shared: true };
-          const glassGeo = new THREE.BoxGeometry(0.95, 0.07, 0.62);
+          const glassGeo = new THREE.BoxGeometry(0.95, 0.06, 0.62);
           glassGeo.userData = { shared: true };
-          const moneyGeo = new THREE.BoxGeometry(0.5, 0.12, 0.26);
+          const moneyGeo = new THREE.BoxGeometry(0.5, 0.11, 0.26);
           moneyGeo.userData = { shared: true };
-          const groundTex = canvasTex(256, 256, (g, W, H) => {
-            g.fillStyle = '#86bf4a'; g.fillRect(0, 0, W, H);
-            for (let i = 0; i < 1400; i++) {
-              const x = Math.random() * W, y = Math.random() * H, r = 1 + Math.random() * 1.6;
-              g.fillStyle = Math.random() > 0.5 ? 'rgba(60,110,30,0.16)' : 'rgba(170,215,110,0.18)';
-              g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+
+          // ================== Окружение с PBR-покрытиями ==================
+          const groundTex = tiledTex(512, 512, 48, 48, (g, W, H) => {
+            g.fillStyle = '#4e7d34'; g.fillRect(0, 0, W, H);
+            for (let i = 0; i < 5500; i++) {
+              const x = Math.random() * W, y = Math.random() * H;
+              g.strokeStyle = i % 3 === 0 ? '#3a6124' : i % 3 === 1 ? '#649943' : '#7ab054';
+              g.lineWidth = 2;
+              g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random() - 0.5) * 4, y - 4 - Math.random() * 5); g.stroke();
             }
           });
-          groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping; groundTex.repeat.set(44, 44); groundTex.anisotropy = 4;
-          const groundMat = new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.95, metalness: 0 });
+          const groundMat = new THREE.MeshStandardMaterial({ map: groundTex, bumpMap: TEX.asphaltBump, bumpScale: 0.04, roughness: 0.92, metalness: 0 });
           scene.add(flat(220, 220, groundMat, 0, 0, 0));
+
           const blobTex = canvasTex(128, 128, (g, W, H) => {
             const grad = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
-            grad.addColorStop(0, 'rgba(0,0,0,0.38)'); grad.addColorStop(0.7, 'rgba(0,0,0,0.14)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+            grad.addColorStop(0, 'rgba(0,0,0,0.48)'); grad.addColorStop(0.68, 'rgba(0,0,0,0.18)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
             g.fillStyle = grad; g.fillRect(0, 0, W, H);
           });
           blobTex.userData = { shared: true };
+
           function contactShadow(w, d, x, z, y = 0.015, parent = scene) {
             const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }));
             m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.renderOrder = -1; parent.add(m); return m;
           }
-          scene.add(flat(5, 60, M(0x4b5058), ROAD_X, 0.01, 7));
-          scene.add(flat(42, 5, M(0x4b5058), 8.5, 0.01, LANE_Z));
-          for (let z = -10; z < 36; z += 4) scene.add(flat(0.25, 2, M(0xf5f0d0), ROAD_X, 0.02, z));
-          for (let x = -6; x < 30; x += 4) scene.add(flat(2, 0.25, M(0xf5f0d0), x, 0.02, LANE_Z));
-          scene.add(flat(23.6, 21.2, M(0xd9d3c5), 4.5, 0.02, 0));
-          const wallM = M(0xeae6dc), trimM = M(0xf0a500);
-          scene.add(box(0.4, 2.2, 21.2, wallM, -7.3, 1.1, 0));
-          scene.add(box(0.4, 2.2, 21.2, wallM, 16.3, 1.1, 0));
-          for (const x of [-5, 1, 7, 13]) scene.add(box(0.3, 2.6, 5.6, wallM, x, 1.3, -7.8));
-          scene.add(box(0.42, 0.25, 21.2, trimM, -7.3, 2.2, 0));
-          scene.add(box(0.42, 0.25, 21.2, trimM, 16.3, 2.2, 0));
+
+          // Асфальтовая дорога и бордюры
+          const roadMat = new THREE.MeshStandardMaterial({ map: TEX.asphaltMap, bumpMap: TEX.asphaltBump, bumpScale: 0.035, roughness: 0.82, metalness: 0.04 });
+          scene.add(flat(5.2, 62, roadMat, ROAD_X, 0.012, 7));
+          scene.add(flat(44, 5.2, roadMat, 8.5, 0.012, LANE_Z));
+          const curbMat = M(0x94a3b8, { r: 0.7, m: 0.05 });
+          scene.add(box(0.28, 0.14, 62, curbMat, ROAD_X - 2.7, 0.07, 7));
+          scene.add(box(44, 0.14, 0.28, curbMat, 8.5, 0.07, LANE_Z - 2.7));
+          for (let z = -10; z < 36; z += 4) scene.add(flat(0.22, 1.9, M(0xf8fafc, { r: 0.5 }), ROAD_X, 0.022, z));
+          for (let x = -6; x < 30; x += 4) scene.add(flat(1.9, 0.22, M(0xf8fafc, { r: 0.5 }), x, 0.022, LANE_Z));
+
+          // Главный эпоксидный пол мастерской
+          const shopFloorMat = new THREE.MeshStandardMaterial({
+            map: TEX.shopFloorMap, bumpMap: TEX.shopFloorBump, bumpScale: 0.015,
+            roughness: 0.26, metalness: 0.1, envMapIntensity: 1.15
+          });
+          scene.add(flat(23.6, 21.2, shopFloorMat, 4.5, 0.02, 0));
+
+          // Стены из сэндвич-панелей и стальные колонны
+          const wallMat = new THREE.MeshStandardMaterial({ map: TEX.wallMap, bumpMap: TEX.wallBump, bumpScale: 0.025, roughness: 0.38, metalness: 0.22 });
+          const steelBeamMat = M(0x263240, { r: 0.32, m: 0.75, b: 'metal' });
+          const trimM = M(0xf59e0b, { r: 0.28, m: 0.45 });
+          scene.add(box(0.42, 2.35, 21.2, wallMat, -7.3, 1.17, 0));
+          scene.add(box(0.42, 2.35, 21.2, wallMat, 16.3, 1.17, 0));
+          for (const z of [-10.4, -3.5, 3.5, 10.4]) {
+            scene.add(box(0.54, 2.55, 0.54, steelBeamMat, -7.3, 1.27, z));
+            scene.add(box(0.54, 2.55, 0.54, steelBeamMat, 16.3, 1.27, z));
+          }
+          for (const x of [-5, 1, 7, 13]) {
+            scene.add(box(0.32, 2.65, 5.6, wallMat, x, 1.32, -7.8));
+            scene.add(box(0.46, 2.85, 0.46, steelBeamMat, x, 1.42, -5.0));
+            scene.add(box(0.46, 2.85, 0.46, steelBeamMat, x, 1.42, -10.5));
+          }
+          scene.add(box(0.48, 0.18, 21.4, trimM, -7.3, 2.4, 0));
+          scene.add(box(0.48, 0.18, 21.4, trimM, 16.3, 2.4, 0));
+
+          // Реалистичные деревья (кора + многослойная листва)
+          const barkMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, bumpMap: TEX.asphaltBump, bumpScale: 0.05, roughness: 0.9 });
           for (const [x, z] of [[-14, -4], [-15, 6], [-14, 16], [20, 2], [21, 9], [19, -6], [28, -20], [-16, -20], [4, 15], [12, 15], [-3, 16]]) {
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.25, 1.45, 10), M(0x76513b)); trunk.position.set(x, 0.72, z); trunk.castShadow = true; scene.add(trunk);
-            for (let i = 0; i < 5; i++) {
-              const crown = new THREE.Mesh(new THREE.IcosahedronGeometry(0.85 + (i % 2) * 0.22, 1), M([0x246b38, 0x2e7d42, 0x39864a][i % 3]));
-              crown.position.set(x + (i % 2 ? 0.42 : -0.38), 1.75 + (i % 3) * 0.42, z + (i % 2 ? -0.28 : 0.25));
-              crown.scale.set(1, 0.92, 0.9); crown.castShadow = true; scene.add(crown);
+            contactShadow(2.4, 2.4, x, z, 0.015);
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.28, 1.65, 12), barkMat);
+            trunk.position.set(x, 0.82, z); trunk.castShadow = true; scene.add(trunk);
+            for (let i = 0; i < 6; i++) {
+              const leafMat = new THREE.MeshStandardMaterial({
+                color: [0x235c2e, 0x2e733b, 0x3b8748][i % 3],
+                bumpMap: TEX.asphaltBump, bumpScale: 0.03, roughness: 0.78
+              });
+              const crown = new THREE.Mesh(new THREE.DodecahedronGeometry(0.88 + (i % 2) * 0.22, 1), leafMat);
+              crown.position.set(x + (i % 2 ? 0.4 : -0.35), 1.85 + (i % 3) * 0.44, z + (i % 2 ? -0.26 : 0.26));
+              crown.scale.set(1, 0.92, 0.95); crown.castShadow = true; crown.receiveShadow = true; scene.add(crown);
             }
           }
+
+          // Оборудование боксов и студийные LED-светильники с реальным светом
           for (const x of BAYX) {
-            const lamp = new THREE.Group(); lamp.position.set(x, 3.05, -7.0); scene.add(lamp);
-            lamp.add(box(2.2, 0.09, 0.55, M(0x303a46), 0, 0, 0, false));
-            lamp.add(box(1.85, 0.035, 0.32, new THREE.MeshStandardMaterial({ color: 0xfff3cf, emissive: 0xffd58a, emissiveIntensity: 0.65, roughness: 0.25 }), 0, -0.06, 0, false));
-            for (const side of [-1, 1]) lamp.add(box(0.08, 0.22, 0.08, M(0x657180), side * 0.82, -0.18, 0, false));
+            const lamp = new THREE.Group(); lamp.position.set(x, 3.15, -7.0); scene.add(lamp);
+            lamp.add(box(2.4, 0.1, 0.65, steelBeamMat, 0, 0, 0, false));
+            lamp.add(box(2.1, 0.04, 0.42, new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffe4b5, emissiveIntensity: 1.1, roughness: 0.1 }), 0, -0.06, 0, false));
+            for (const side of [-1, 1]) lamp.add(box(0.08, 0.26, 0.08, steelBeamMat, side * 0.9, -0.18, 0, false));
+            const bayLight = new THREE.PointLight(0xfff5e4, 0.55, 8.5);
+            bayLight.position.set(x, 2.8, -7.0);
+            scene.add(bayLight);
+
+            // Инструментальная тележка механика
             const cart = new THREE.Group(); cart.position.set(x - 1.85, 0, -4.0); scene.add(cart);
-            cart.add(box(0.8, 0.12, 0.55, M(0x3b4653), 0, 0.42, 0), box(0.74, 0.07, 0.5, M(0xf07818), 0, 0.51, 0));
-            for (const dx of [-0.28, 0.28]) for (const dz of [-0.18, 0.18]) {
-              const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.06, 12), M(0x20252b));
-              wheel.rotation.z = Math.PI / 2; wheel.position.set(dx, 0.12, dz); cart.add(wheel);
+            contactShadow(1.0, 0.75, 0, 0, 0.015, cart);
+            cart.add(roundedBox(0.82, 0.58, 0.52, M(0xdc2626, { r: 0.28, m: 0.55, b: 'metal' }), 0, 0.44, 0, 0.05));
+            cart.add(box(0.76, 0.1, 0.54, M(0x1e293b, { r: 0.4, m: 0.6 }), 0, 0.56, 0));
+            cart.add(box(0.76, 0.1, 0.54, M(0x1e293b, { r: 0.4, m: 0.6 }), 0, 0.38, 0));
+            for (const dx of [-0.3, 0.3]) for (const dz of [-0.18, 0.18]) {
+              const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.06, 14), M(0x111827, { r: 0.8 }));
+              wheel.rotation.z = Math.PI / 2; wheel.position.set(dx, 0.1, dz); cart.add(wheel);
             }
           }
+
+          // Вывеска с подсветкой
           const signMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, side: THREE.DoubleSide });
           const sign = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 1.3), signMat);
-          sign.position.set(4.5, 4.2, -10.35); scene.add(sign);
+          sign.position.set(4.5, 4.2, -10.32); scene.add(sign);
           new THREE.TextureLoader().load('logo.png', tex => {
             tex.colorSpace = THREE.SRGBColorSpace;
-            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            tex.anisotropy = maxAniso;
             sign.material.map = tex;
             sign.material.needsUpdate = true;
           });
-          scene.add(box(6.8, 1.55, 0.2, M(0x171b22), 4.5, 4.2, -10.5, false));
-          for (const x of [1.5, 7.5]) scene.add(box(0.2, 4.2, 0.2, M(0x2d3748), x, 2.1, -10.5));
-          scene.add(box(4.2, 0.12, 1.4, M(0x546e7a), WARE.x, 0.5, 7.8));
-          scene.add(box(4.2, 0.12, 1.4, M(0x546e7a), WARE.x, 1.3, 7.8));
-          scene.add(box(4.2, 0.12, 1.4, M(0x546e7a), WARE.x, 2.1, 7.8));
-          for (const dx of [-2, 2]) for (const dz of [-0.6, 0.6]) scene.add(box(0.12, 2.3, 0.12, M(0x37474f), WARE.x + dx, 1.15, 7.8 + dz));
+          scene.add(roundedBox(6.9, 1.62, 0.24, steelBeamMat, 4.5, 4.2, -10.5, 0.08, false));
+          scene.add(box(6.7, 0.06, 0.32, new THREE.MeshBasicMaterial({ color: 0xffd166 }), 4.5, 5.02, -10.42, false));
+          for (const x of [1.5, 7.5]) scene.add(box(0.24, 4.2, 0.24, steelBeamMat, x, 2.1, -10.5));
+
+          // ---- Склад + вращающийся диспенсер тонировочной пленки ----
+          const rackMat = M(0x3b4d5e, { r: 0.35, m: 0.68, b: 'metal' });
+          scene.add(box(4.2, 0.12, 1.4, rackMat, WARE.x, 0.5, 7.8));
+          scene.add(box(4.2, 0.12, 1.4, rackMat, WARE.x, 1.3, 7.8));
+          scene.add(box(4.2, 0.12, 1.4, rackMat, WARE.x, 2.1, 7.8));
+          for (const dx of [-2, 2]) for (const dz of [-0.6, 0.6]) scene.add(box(0.14, 2.35, 0.14, steelBeamMat, WARE.x + dx, 1.17, 7.8 + dz));
           for (let s = 0; s < 3; s++) for (let i = 0; i < 6; i++) {
             const g = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.62, 1.0), glassMat);
             g.position.set(WARE.x - 1.6 + i * 0.62, 0.9 + s * 0.8, 7.8); g.rotation.z = 0.15; g.castShadow = true; scene.add(g);
@@ -491,128 +797,121 @@ jobs:
           const tintDispenser = new THREE.Group();
           tintDispenser.position.set(WARE.x - 2.65, 0, 7.5);
           scene.add(tintDispenser);
-          tintDispenser.add(new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.5, 0.12, 16), M(0x263238)));
-          const dispPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.1, 12), M(0x90a4ae));
-          dispPole.position.y = 1.05; tintDispenser.add(dispPole);
+          contactShadow(1.2, 1.2, 0, 0, 0.015, tintDispenser);
+          tintDispenser.add(new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.52, 0.14, 20), steelBeamMat));
+          const dispPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.15, 16), M(0xcbd5e1, { r: 0.2, m: 0.85 }));
+          dispPole.position.y = 1.07; tintDispenser.add(dispPole);
           const tintCarousel = new THREE.Group();
           tintCarousel.position.y = 1.15;
           tintDispenser.add(tintCarousel);
           for (let i = 0; i < 4; i++) {
             const a = i * Math.PI / 2;
-            const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.85, 14),
-              new THREE.MeshPhysicalMaterial({ color: [0x1b2836, 0x2c3e50, 0x111921, 0x34495e][i], roughness: 0.18, metalness: 0.35, clearcoat: 0.9 }));
+            const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.86, 18),
+              new THREE.MeshPhysicalMaterial({ color: [0x0f172a, 0x1e293b, 0x334155, 0x1d3557][i], roughness: 0.12, metalness: 0.45, clearcoat: 1.0 }));
             roll.position.set(Math.cos(a) * 0.24, 0, Math.sin(a) * 0.24);
             roll.castShadow = true;
             tintCarousel.add(roll);
           }
           label('СКЛАД', 3.2, 78, '#ffffff', WARE.x, 4.5);
-          scene.add(box(3.2, 1.0, 1.1, M(0x8d5a3b), 9.5, 0.5, 7.0));
-          scene.add(box(3.4, 0.1, 1.3, M(0x6d4c41), 9.5, 1.03, 7.0));
+
+          // ---- Касса с деревянной текстурой и POS-терминалом ----
+          const deskWoodMat = new THREE.MeshStandardMaterial({ map: TEX.woodMap, bumpMap: TEX.shopFloorBump, bumpScale: 0.015, roughness: 0.32, metalness: 0.08 });
+          contactShadow(3.6, 1.5, 9.5, 7.0, 0.025);
+          scene.add(roundedBox(3.2, 1.0, 1.1, deskWoodMat, 9.5, 0.5, 7.0, 0.06));
+          scene.add(roundedBox(3.42, 0.12, 1.32, M(0x1e293b, { r: 0.25, m: 0.4 }), 9.5, 1.04, 7.0, 0.04));
+          // Монитор кассы
+          scene.add(box(0.46, 0.34, 0.06, steelBeamMat, 10.55, 1.32, 6.85));
+          scene.add(box(0.4, 0.26, 0.07, new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), 10.55, 1.32, 6.84, false));
+          scene.add(box(0.12, 0.18, 0.12, steelBeamMat, 10.55, 1.14, 6.85));
           label('КАССА', 3.2, 78, '#ffffff', CASH.x, 3.9);
+
+          // ---- Кольца зон ----
           function ringMesh(r0, r1, color, x, z, opacity = 0.9, len = Math.PI * 2) {
-            const m = new THREE.Mesh(new THREE.RingGeometry(r0, r1, 40, 1, Math.PI / 2, len),
+            const m = new THREE.Mesh(new THREE.RingGeometry(r0, r1, 48, 1, Math.PI / 2, len),
               new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide }));
             m.rotation.x = -Math.PI / 2; m.position.set(x, 0.05, z); scene.add(m); return m;
           }
-          ringMesh(1.05, 1.25, 0x4fc3f7, WARE.x, WARE.z);
-          ringMesh(1.05, 1.25, 0x66bb6a, CASH.x, CASH.z);
-          function makePerson(shirt, pants = 0x37474f, hat = null, style = 0) {
+          ringMesh(1.05, 1.25, 0x38bdf8, WARE.x, WARE.z);
+          ringMesh(1.05, 1.25, 0x4ade80, CASH.x, CASH.z);
+
+          // ================== Люди (с PBR-тканью, кожей и тенями) ==================
+          function makePerson(shirt, pants = 0x263238, hat = null, style = 0) {
             const g = new THREE.Group();
+            contactShadow(1.15, 1.15, 0, 0, 0.025, g);
             const styles = [
-              { skin: 0xf1c27d, hair: 0x4b2e25, beard: 0x4b2e25, eyes: 0x35251e, hairType: 0, beardType: 1, brows: 0x38251e },
-              { skin: 0xd99a6c, hair: 0x211b19, beard: 0x211b19, eyes: 0x241b17, hairType: 1, beardType: 2, brows: 0x211b19 },
-              { skin: 0xf3d0a0, hair: 0x9b6742, beard: 0x9b6742, eyes: 0x4b6b75, hairType: 2, beardType: 0, brows: 0x75472c },
-              { skin: 0x8e5b3e, hair: 0x1c1715, beard: 0x1c1715, eyes: 0x241813, hairType: 3, beardType: 1, brows: 0x171211 },
-              { skin: 0xe9b18d, hair: 0x3d2b27, beard: 0x3d2b27, eyes: 0x344c65, hairType: 4, beardType: 0, brows: 0x30201c },
-              { skin: 0xc88761, hair: 0x2b201d, beard: 0x2b201d, eyes: 0x302019, hairType: 5, beardType: 2, brows: 0x241815 }
+              { skin: 0xf1c27d, hair: 0x3b2318, beard: 0x3b2318, eyes: 0x2b1d16, hairType: 0, beardType: 1 },
+              { skin: 0xd99a6c, hair: 0x1c1715, beard: 0x1c1715, eyes: 0x1f1714, hairType: 1, beardType: 2 },
+              { skin: 0xf3d0a0, hair: 0x7c4f2b, beard: 0x7c4f2b, eyes: 0x335c67, hairType: 2, beardType: 0 },
+              { skin: 0x9c6644, hair: 0x171312, beard: 0x171312, eyes: 0x211612, hairType: 3, beardType: 1 },
+              { skin: 0xe9b18d, hair: 0x2f201c, beard: 0x2f201c, eyes: 0x2b4560, hairType: 4, beardType: 0 },
+              { skin: 0xc88761, hair: 0x241a17, beard: 0x241a17, eyes: 0x291b15, hairType: 5, beardType: 2 }
             ];
             const st = styles[Math.abs(style) % styles.length];
-            const skin = M(st.skin), hair = M(st.hair), brow = M(st.brows);
-            const legM = M(pants), bootM = M(0x252a31), gloveM = M(0x20242a);
-            const legL = box(0.23, 0.62, 0.25, legM, -0.15, 0.3, 0);
-            const legR = box(0.23, 0.62, 0.25, legM, 0.15, 0.3, 0);
+            const skin = M(st.skin, { r: 0.52, m: 0.02, bs: 0.002 });
+            const hair = M(st.hair, { r: 0.72, m: 0.04, b: 'fabric', bs: 0.01 });
+            const shirtMat = M(shirt, { r: 0.65, m: 0.05, b: 'fabric', bs: 0.012 });
+            const legM = M(pants, { r: 0.68, m: 0.05, b: 'fabric', bs: 0.012 });
+            const bootM = M(0x181c22, { r: 0.35, m: 0.15 });
+            const accentM = M(0xf59e0b, { r: 0.32, m: 0.25 });
+
+            const legL = roundedBox(0.23, 0.62, 0.25, legM, -0.15, 0.3, 0, 0.05);
+            const legR = roundedBox(0.23, 0.62, 0.25, legM, 0.15, 0.3, 0, 0.05);
             legL.geometry.translate(0, -0.3, 0); legR.geometry = legL.geometry;
             legL.position.y = legR.position.y = 0.6;
-            const bootL = box(0.28, 0.17, 0.38, bootM, -0.15, 0.12, 0.07);
-            const bootR = box(0.28, 0.17, 0.38, bootM, 0.15, 0.12, 0.07);
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.37, 0.78, 12), M(shirt));
-            body.position.y = 1.0; body.castShadow = true;
-            const collar = box(0.3, 0.12, 0.12, M(0xf0a500), 0, 1.37, 0.04, false);
-            const shoulderL = box(0.22, 0.09, 0.25, M(0xf07818), -0.25, 1.31, 0.02, false);
-            const shoulderR = box(0.22, 0.09, 0.25, M(0xf07818), 0.25, 1.31, 0.02, false);
-            const pocketL = box(0.16, 0.18, 0.045, M(0x3b424c), -0.17, 1.08, 0.19, false);
-            const pocketR = box(0.16, 0.18, 0.045, M(0x3b424c), 0.17, 1.08, 0.19, false);
-            const belt = box(0.62, 0.09, 0.39, M(0x252a31), 0, 0.72, 0);
-            const buckle = box(0.13, 0.11, 0.04, M(0xc4c8cc), 0, 0.72, 0.22, false);
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 18, 14), skin);
-            head.scale.set(1.02, 1.08, 0.92); head.position.y = 1.68; head.castShadow = true;
-            const earL = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 8), skin);
+            const bootL = roundedBox(0.27, 0.18, 0.38, bootM, -0.15, 0.11, 0.06, 0.05);
+            const bootR = roundedBox(0.27, 0.18, 0.38, bootM, 0.15, 0.11, 0.06, 0.05);
+
+            const body = roundedBox(0.68, 0.78, 0.42, shirtMat, 0, 1.0, 0, 0.12);
+            // Светоотражающая полоса спецодежды и бейдж
+            const stripe = box(0.7, 0.07, 0.44, accentM, 0, 1.16, 0, false);
+            const collar = roundedBox(0.36, 0.12, 0.28, accentM, 0, 1.38, 0.02, 0.03, false);
+            const belt = box(0.7, 0.09, 0.44, bootM, 0, 0.68, 0);
+            const buckle = box(0.14, 0.11, 0.04, M(0xe2e8f0, { r: 0.2, m: 0.85 }), 0, 0.68, 0.23, false);
+
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.33, 24, 18), skin);
+            head.scale.set(1.0, 1.06, 0.94); head.position.y = 1.68; head.castShadow = true;
+            const earL = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 10), skin);
             const earR = earL.clone(); earL.position.set(-0.32, 1.66, 0); earR.position.set(0.32, 1.66, 0);
-            earL.scale.set(0.65, 1, 0.55); earR.scale.copy(earL.scale);
-            const eyeWhite = M(0xfff7ed), iris = M(st.eyes), pupil = M(0x171515), shine = M(0xffffff);
-            for (const x of [-0.12, 0.12]) {
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.078, 12, 10), eyeWhite);
-              eye.position.set(x, 1.69, 0.287); eye.scale.set(1, 1.12, 0.5); g.add(eye);
-              const ir = new THREE.Mesh(new THREE.SphereGeometry(0.047, 12, 10), iris);
-              ir.position.set(x + (style % 2 ? 0.008 : 0), 1.685, 0.326); g.add(ir);
-              const pu = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), pupil);
-              pu.position.set(x + (style % 2 ? 0.008 : 0), 1.684, 0.346); g.add(pu);
-              const gl = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), shine);
-              gl.position.set(x - 0.015, 1.707, 0.36); g.add(gl);
-              const browMesh = box(0.16, 0.045, 0.045, brow, x, 1.80 + (x > 0 ? 0.01 : 0), 0.29, false);
-              browMesh.rotation.z = (x > 0 ? -0.12 : 0.12) * (style % 2 ? 1 : -1); g.add(browMesh);
+            earL.scale.set(0.6, 1, 0.55); earR.scale.copy(earL.scale);
+
+            const eyeWhite = M(0xffffff, { r: 0.15 }), iris = M(st.eyes, { r: 0.2 }), pupil = M(0x0f172a, { r: 0.1 });
+            for (const x of [-0.115, 0.115]) {
+              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.072, 14, 12), eyeWhite);
+              eye.position.set(x, 1.69, 0.28); eye.scale.set(1, 1.1, 0.48); g.add(eye);
+              const ir = new THREE.Mesh(new THREE.SphereGeometry(0.044, 12, 10), iris);
+              ir.position.set(x, 1.685, 0.315); g.add(ir);
+              const pu = new THREE.Mesh(new THREE.SphereGeometry(0.024, 10, 8), pupil);
+              pu.position.set(x, 1.685, 0.332); g.add(pu);
+              const browMesh = box(0.15, 0.04, 0.04, hair, x, 1.79, 0.29, false);
+              browMesh.rotation.z = (x > 0 ? -0.08 : 0.08); g.add(browMesh);
             }
-            const nose = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), M(st.skin));
-            nose.position.set(0, 1.625, 0.33); nose.scale.set(0.85, 0.7, 0.7); g.add(nose);
-            const smileCurve = new THREE.CatmullRomCurve3([
-              new THREE.Vector3(-0.075, 1.585, 0.305), new THREE.Vector3(0, 1.565, 0.322), new THREE.Vector3(0.075, 1.585, 0.305)
-            ]);
-            const smile = new THREE.Mesh(new THREE.TubeGeometry(smileCurve, 8, 0.009, 5, false), M(0x603b2c)); g.add(smile);
-            const cap = new THREE.Mesh(new THREE.SphereGeometry(0.31, 14, 10), hair);
-            cap.scale.set(1.05, 0.62, 0.94); cap.position.set(0, 1.91, -0.005); g.add(cap);
-            const addHairSpike = (x, y, z, sx, sy, sz, rot = 0) => {
-              const m = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), hair);
-              m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.rotation.z = rot; m.castShadow = true; g.add(m);
-            };
-            if (st.hairType === 0) {
-              addHairSpike(-0.20, 1.94, 0.13, 1.0, 0.75, 0.7, -0.4); addHairSpike(-0.04, 2.02, 0.1, 1.05, 0.8, 0.65, 0.15);
-              addHairSpike(0.16, 1.96, 0.12, 0.9, 0.75, 0.65, 0.5);
-            } else if (st.hairType === 1) {
-              const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.31, 12, 10), M(0x30343b));
-              beanie.scale.set(1.03, 0.72, 0.95); beanie.position.y = 1.97; g.add(beanie);
-              g.add(box(0.34, 0.09, 0.3, M(0xf0a500), 0, 1.82, 0.18, false));
-            } else if (st.hairType === 2) {
-              addHairSpike(-0.13, 1.98, 0.10, 1.0, 0.75, 0.7, -0.2); addHairSpike(0.08, 1.98, 0.12, 0.9, 0.8, 0.7, 0.35);
-              addHairSpike(0.20, 1.90, 0.10, 0.8, 0.6, 0.6, 0.65);
-            } else if (st.hairType === 3) {
-              const band = new THREE.Mesh(new THREE.SphereGeometry(0.31, 12, 10), hair); band.scale.set(1, 0.6, 0.9); band.position.y = 1.92; g.add(band);
-              addHairSpike(-0.16, 1.91, 0.14, 0.9, 0.65, 0.6, -0.3);
-            } else if (st.hairType === 4) {
-              addHairSpike(-0.20, 1.95, 0.11, 1.0, 0.75, 0.7, -0.5); addHairSpike(0.02, 2.02, 0.1, 1.0, 0.75, 0.7, 0.15);
-              addHairSpike(0.19, 1.94, 0.1, 0.85, 0.7, 0.6, 0.55);
-            } else {
-              const shortHair = new THREE.Mesh(new THREE.SphereGeometry(0.30, 12, 10), hair);
-              shortHair.scale.set(1.05, 0.48, 0.95); shortHair.position.set(0, 1.91, -0.01); g.add(shortHair);
+            const nose = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 10), skin);
+            nose.position.set(0, 1.63, 0.33); nose.scale.set(0.85, 0.75, 0.75); g.add(nose);
+
+            // Аккуратная геометрия прически/кепки
+            const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.34, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), hair);
+            hairCap.position.set(0, 1.70, -0.01); hairCap.rotation.x = -0.18; g.add(hairCap);
+            if (st.hairType % 2 === 0) {
+              const fringe = roundedBox(0.46, 0.12, 0.22, hair, 0, 1.92, 0.16, 0.05, false);
+              fringe.rotation.x = 0.2; g.add(fringe);
             }
             if (st.beardType > 0) {
-              const beard = new THREE.Mesh(new THREE.SphereGeometry(st.beardType === 2 ? 0.19 : 0.14, 12, 9), M(st.beard));
-              beard.scale.set(1.25, 0.62, 0.6); beard.position.set(0, 1.49, 0.22); g.add(beard);
-              if (st.beardType === 1) {
-                const moustache = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), M(st.beard));
-                moustache.scale.set(1.7, 0.42, 0.55); moustache.position.set(0, 1.57, 0.29); g.add(moustache);
-              }
+              const beard = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 12, 0, Math.PI, 0, Math.PI * 0.65), hair);
+              beard.position.set(0, 1.56, 0.11); beard.rotation.x = 0.65; g.add(beard);
             }
-            const armM = M(shirt);
-            const armL = box(0.17, 0.58, 0.18, armM, -0.44, 1.05, 0.08);
-            const armR = box(0.17, 0.58, 0.18, armM, 0.44, 1.05, 0.08);
+
+            const armL = roundedBox(0.18, 0.56, 0.18, shirtMat, -0.43, 1.05, 0.08, 0.05);
+            const armR = roundedBox(0.18, 0.56, 0.18, shirtMat, 0.43, 1.05, 0.08, 0.05);
             armL.rotation.z = 0.08; armR.rotation.z = -0.08;
-            armL.rotation.x = armR.rotation.x = -0.55;
-            const handL = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 8), gloveM);
-            const handR = handL.clone(); handL.position.set(-0.45, 0.76, 0.25); handR.position.set(0.45, 0.76, 0.25);
-            g.add(legL, legR, bootL, bootR, body, collar, shoulderL, shoulderR, pocketL, pocketR, belt, buckle, head, earL, earR, armL, armR, handL, handR);
-            if (hat !== null && st.hairType !== 1) {
-              const h = new THREE.Mesh(new THREE.CylinderGeometry(0.29, 0.29, 0.14, 12), M(hat)); h.position.y = 1.91;
-              const v = box(0.34, 0.05, 0.22, M(hat), 0, 1.85, 0.25, false); g.add(h, v);
+            armL.rotation.x = armR.rotation.x = -0.52;
+            const handL = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), bootM);
+            const handR = handL.clone(); handL.position.set(-0.44, 0.77, 0.24); handR.position.set(0.44, 0.77, 0.24);
+
+            g.add(legL, legR, bootL, bootR, body, stripe, collar, belt, buckle, head, earL, earR, armL, armR, handL, handR);
+            if (hat !== null) {
+              const hatMat = M(hat, { r: 0.45, m: 0.1, b: 'fabric' });
+              const h = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.34, 0.16, 18), hatMat); h.position.y = 1.93;
+              const v = roundedBox(0.38, 0.05, 0.26, hatMat, 0, 1.87, 0.25, 0.02, false); g.add(h, v);
             }
             g.userData = { legL, legR, walk: 0 };
             scene.add(g);
@@ -631,19 +930,39 @@ jobs:
             }
             while (stack.length > count) p.remove(stack.pop());
           }
-          const player = { obj: makePerson(0x252a31, 0x30343b, null, 0), glass: 0, supplies: { repair: 0, tint: 0 }, stack: [], vx: 0, vz: 0 };
+
+          // ================== Игрок ==================
+          const player = { obj: makePerson(0x1e293b, 0x0f172a, 0xf59e0b, 0), glass: 0, supplies: { repair: 0, tint: 0 }, stack: [], vx: 0, vz: 0 };
           player.obj.position.set(2, 0, 2);
+
+          // ================== Боксы с PBR-покрытием и дренажной решеткой ==================
+          const bayOpenMat = new THREE.MeshStandardMaterial({
+            map: TEX.bayFloorMap, bumpMap: TEX.bayFloorBump, bumpScale: 0.022,
+            roughness: 0.38, metalness: 0.22
+          });
+          const bayClosedMat = new THREE.MeshStandardMaterial({
+            color: 0x64748b, map: TEX.bayFloorMap, bumpMap: TEX.bayFloorBump, bumpScale: 0.01,
+            roughness: 0.75, metalness: 0.05
+          });
+          const hazardStripeMat = new THREE.MeshStandardMaterial({ map: TEX.hazardMap, roughness: 0.45, metalness: 0.1 });
+
           const bays = BAYX.map((x, i) => {
-            const progMat = new THREE.MeshBasicMaterial({ color: 0x48bb78, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide });
+            const progMat = new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide });
             const b = {
               i, x, open: false, car: null, stand: 0, incoming: 0, standMeshes: [],
               progress: 0, lastProgRender: 0, cool: 0.5 + i, mech: null, mechPrep: 0,
               ring: null, prog: null, progMat, jobReady: false
             };
-            b.floor = flat(5.6, 6.2, M(0x9a958a), x, 0.03, -7.6); scene.add(b.floor);
-            for (const dx of [-2.4, 2.4]) scene.add(flat(0.15, 5.8, M(0xf0c419), x + dx, 0.04, -7.6));
+            b.floor = flat(5.6, 6.2, bayClosedMat, x, 0.03, -7.6); scene.add(b.floor);
+            for (const dx of [-2.45, 2.45]) scene.add(flat(0.24, 5.9, hazardStripeMat, x + dx, 0.038, -7.6));
+            // Металлическая дренажная решетка под машиной
+            scene.add(flat(1.4, 3.8, M(0x1e293b, { r: 0.3, m: 0.85, b: 'metal', bs: 0.02 }), x, 0.036, -7.5));
             const st = new THREE.Group(); st.position.set(x + 1.7, 0, -4.4);
-            st.add(box(1.1, 0.12, 0.5, M(0x455a64), 0, 0.06, 0), box(0.08, 0.9, 0.08, M(0x455a64), -0.5, 0.45, -0.2), box(0.08, 0.9, 0.08, M(0x455a64), 0.5, 0.45, -0.2));
+            st.add(
+              roundedBox(1.14, 0.12, 0.54, steelBeamMat, 0, 0.06, 0, 0.03),
+              box(0.08, 0.92, 0.08, steelBeamMat, -0.5, 0.46, -0.2),
+              box(0.08, 0.92, 0.08, steelBeamMat, 0.5, 0.46, -0.2)
+            );
             b.standGroup = st; st.visible = false; scene.add(st);
             return b;
           });
@@ -658,8 +977,8 @@ jobs:
           }
           function openBay(b) {
             b.open = true; b.standGroup.visible = true;
-            b.floor.material.color.set(0x7d8a96);
-            b.ring = ringMesh(1.05, 1.22, 0xffffff, b.x, WORK_Z, 0.8);
+            b.floor.material = bayOpenMat;
+            b.ring = ringMesh(1.05, 1.22, 0xffffff, b.x, WORK_Z, 0.85);
           }
           function setProgress(b, p) {
             b.progress = p;
@@ -682,70 +1001,168 @@ jobs:
               b.prog.geometry = new THREE.RingGeometry(0.7, 1.0, 36, 1, Math.PI / 2, angle);
             }
           }
+
+          // ================== Автомобили с наклоненной кабиной и PBR-краской «металлик» ==================
           const cars = [];
+          const tireMat = new THREE.MeshStandardMaterial({ color: 0x181a1f, bumpMap: TEX.tireBump, bumpScale: 0.03, roughness: 0.86, metalness: 0.05 });
+          tireMat.userData = { shared: true };
+          const chromeMat = M(0xe2e8f0, { r: 0.12, m: 0.92, env: 1.5 });
+          const trimDarkMat = M(0x18202c, { r: 0.38, m: 0.45 });
+          const sideWindowMat = new THREE.MeshPhysicalMaterial({ color: 0x1e2d3d, roughness: 0.08, metalness: 0.15, clearcoat: 1.0, envMap, envMapIntensity: 1.4 });
+          sideWindowMat.userData = { shared: true };
+
+          function makeSlopedCabin(w, h, zFrontBot, zFrontTop, zBackTop, zBackBot, mat) {
+            const s = new THREE.Shape();
+            s.moveTo(zBackBot, 0);
+            s.lineTo(zFrontBot, 0);
+            s.lineTo(zFrontTop, h);
+            s.lineTo(zBackTop, h);
+            s.closePath();
+            const geo = new THREE.ExtrudeGeometry(s, {
+              depth: w - 0.16, bevelEnabled: true, bevelSegments: 4, steps: 1, bevelSize: 0.08, bevelThickness: 0.08
+            });
+            geo.rotateY(Math.PI / 2);
+            geo.translate(-(w - 0.16) / 2, 0.9, 0);
+            const m = new THREE.Mesh(geo, mat);
+            m.castShadow = true; m.receiveShadow = true;
+            return m;
+          }
+
           function makeCar(type, color) {
             const g = new THREE.Group();
-            const body = new THREE.MeshPhysicalMaterial({ color, roughness: 0.35, metalness: 0.65, clearcoat: 1, clearcoatRoughness: 0.08, envMap, envMapIntensity: 1 });
-            const dark = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.92, metalness: 0 });
-            contactShadow(2.6, 4.8, 0, 0, 0.015, g);
-            g.add(roundedBox(1.9, 0.7, 4.2, body, 0, 0.6, 0, 0.16));
-            let cabinW = 1.65, cabinH = 0.62, cabinD = 2.0, cabinZ = -0.35;
-            if (type.name === 'Хэтчбек') { cabinD = 1.72; cabinZ = -0.22; }
-            if (type.name === 'Седан') { cabinD = 1.75; cabinZ = -0.55; g.add(roundedBox(1.55, 0.22, 0.72, body, 0, 0.98, -1.45, 0.07)); }
-            if (type.name === 'Универсал') { cabinD = 2.35; cabinH = 0.68; cabinZ = -0.12; }
-            if (type.name === 'Внедорожник' || type.name === 'Премиум-кроссовер') { cabinW = 1.68; cabinH = 0.76; cabinD = 2.15; cabinZ = -0.25; }
-            if (type.name === 'Купе') { cabinW = 1.58; cabinH = 0.48; cabinD = 1.55; cabinZ = -0.28; }
-            if (type.name === 'Грузовик') {
-              cabinW = 1.52; cabinH = 0.9; cabinD = 1.2; cabinZ = 0.95;
-              g.add(roundedBox(1.8, 0.82, 1.65, body, 0, 0.95, -1.15, 0.12));
+            const body = new THREE.MeshPhysicalMaterial({
+              color, roughness: 0.18, metalness: 0.72,
+              bumpMap: TEX.flakeBump, bumpScale: 0.0025,
+              clearcoat: 1.0, clearcoatRoughness: 0.05,
+              envMap, envMapIntensity: 1.35
+            });
+            contactShadow(2.7, 4.9, 0, 0, 0.018, g);
+
+            // Нижний профилированный кузов + пороги + колесные арки
+            g.add(roundedBox(1.94, 0.66, 4.28, body, 0, 0.58, 0, 0.16));
+            g.add(roundedBox(2.02, 0.14, 2.5, trimDarkMat, 0, 0.31, 0, 0.04));
+            for (const sx of [-0.94, 0.94]) for (const sz of [-1.35, 1.35]) {
+              const arch = new THREE.Mesh(new THREE.CylinderGeometry(0.47, 0.47, 0.22, 20, 1, false, 0, Math.PI), trimDarkMat);
+              arch.rotation.z = Math.PI / 2; arch.rotation.y = Math.PI / 2;
+              arch.position.set(sx, 0.42, sz); g.add(arch);
             }
-            g.add(roundedBox(cabinW, cabinH, cabinD, body, 0, 1.25, cabinZ, 0.14));
-            const windowMat = new THREE.MeshPhysicalMaterial({ color: 0x3a4c58, roughness: 0.15, metalness: 0.2, clearcoat: 0.6, envMap, envMapIntensity: 1.3 });
-            const sideWindowLen = Math.max(0.65, cabinD * 0.72);
+
+            // Кабина с настоящим наклоном стоек
+            let cabH = 0.62, zFB = 0.95, zFT = 0.42, zBT = -1.05, zBB = -1.42;
+            if (type.name === 'Хэтчбек') { zFB = 0.92; zFT = 0.38; zBT = -1.25; zBB = -1.75; }
+            else if (type.name === 'Седан') { zFB = 0.95; zFT = 0.4; zBT = -0.95; zBB = -1.45; }
+            else if (type.name === 'Универсал') { cabH = 0.66; zFB = 0.95; zFT = 0.4; zBT = -1.65; zBB = -1.98; }
+            else if (type.name === 'Внедорожник' || type.name === 'Премиум-кроссовер') { cabH = 0.74; zFB = 0.98; zFT = 0.44; zBT = -1.62; zBB = -1.95; }
+            else if (type.name === 'Купе') { cabH = 0.52; zFB = 0.92; zFT = 0.25; zBT = -0.95; zBB = -1.68; }
+            else if (type.name === 'Грузовик') {
+              cabH = 0.88; zFB = 1.72; zFT = 1.35; zBT = 0.15; zBB = 0.12;
+              g.add(roundedBox(1.86, 0.84, 1.85, M(0xdbe2ea, { r: 0.35, m: 0.3, b: 'metal' }), 0, 1.0, -1.05, 0.08));
+            }
+            g.add(makeSlopedCabin(1.68, cabH, zFB, zFT, zBT, zBB, body));
+
+            // Боковое остекление, дверные ручки и молдинги
+            const winLen = Math.max(0.75, (zFT - zBT) * 0.92);
+            const winCenterZ = (zFT + zBT) * 0.5;
             for (const sx of [-1, 1]) {
-              g.add(box(0.035, Math.max(0.22, cabinH * 0.48), sideWindowLen, windowMat, sx * (cabinW / 2 + 0.012), 1.34, cabinZ));
-              g.add(box(0.045, 0.07, 2.7, M(0xeeeeee), sx * 0.955, 0.45, 0, false));
+              g.add(roundedBox(0.05, cabH * 0.66, winLen, sideWindowMat, sx * 0.83, 0.92 + cabH * 0.52, winCenterZ, 0.02));
+              g.add(box(0.05, 0.04, 0.22, chromeMat, sx * 0.98, 0.78, 0.15, false));
+              g.add(box(0.05, 0.05, 2.5, chromeMat, sx * 0.98, 0.44, 0, false));
             }
             if (type.name === 'Внедорожник' || type.name === 'Премиум-кроссовер') {
-              g.add(box(0.08, 0.08, 3.5, M(0x222831), -0.48, 1.72, cabinZ, false), box(0.08, 0.08, 3.5, M(0x222831), 0.48, 1.72, cabinZ, false));
+              for (const sx of [-0.52, 0.52]) g.add(box(0.06, 0.06, 1.8, chromeMat, sx, 0.94 + cabH, winCenterZ, false));
             }
-            if (type.name === 'Купе') g.add(box(1.25, 0.12, 0.3, M(0x222831), 0, 1.04, -1.78, false));
-            if (type.name === 'Грузовик') g.add(box(1.5, 0.12, 1.45, M(0xc5cbd1), 0, 1.4, -1.15, false));
-            const wsZ = type.name === 'Грузовик' ? 1.56 : 0.72;
-            const ws = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.85), new THREE.MeshLambertMaterial({ map: crackTex }));
-            ws.position.set(0, 1.22, wsZ); ws.rotation.x = -0.75; g.add(ws);
+            if (type.name === 'Купе') {
+              g.add(box(1.48, 0.06, 0.26, trimDarkMat, 0, 1.04, -1.86, false));
+              for (const sx of [-0.45, 0.45]) g.add(box(0.06, 0.14, 0.08, trimDarkMat, sx, 0.95, -1.86, false));
+            }
+
+            // Лобовое стекло точно по наклону передних стоек
+            const dxW = zFB - zFT, dyW = cabH;
+            const wsLen = Math.hypot(dxW, dyW) + 0.06;
+            const wsAngle = -Math.atan2(dxW, dyW);
+            const wsY = 0.91 + dyW * 0.52;
+            const wsZ = (zFB + zFT) * 0.5 + 0.04;
+
+            const ws = new THREE.Mesh(
+              new THREE.PlaneGeometry(1.48, wsLen),
+              new THREE.MeshPhysicalMaterial({ map: crackTex, roughness: 0.08, metalness: 0.05, clearcoat: 1.0, envMap, envMapIntensity: 1.25 })
+            );
+            ws.position.set(0, wsY, wsZ);
+            ws.rotation.x = wsAngle;
+            g.add(ws);
+
+            // Дворники у основания лобового стекла
+            for (const sx of [-0.32, 0.28]) {
+              const wiper = box(0.52, 0.025, 0.03, trimDarkMat, sx, 0.94, zFB + 0.04, false);
+              wiper.rotation.y = 0.08; g.add(wiper);
+            }
+
+            // 3D-эффекты ремонта и тонировки
             const fxGroup = new THREE.Group();
-            fxGroup.position.set(0, 1.26, wsZ + 0.04);
-            fxGroup.rotation.x = -0.75;
+            fxGroup.position.set(0, wsY + 0.03, wsZ + 0.04);
+            fxGroup.rotation.x = wsAngle;
             fxGroup.visible = false;
             const uvTool = new THREE.Group();
-            uvTool.add(box(0.24, 0.08, 0.12, M(0x2d3748), 0, 0, 0.05, false));
-            const uvGlowMat = new THREE.MeshBasicMaterial({ color: 0xc084fc, transparent: true, opacity: 0.85 });
+            uvTool.add(box(0.24, 0.08, 0.12, steelBeamMat, 0, 0, 0.05, false));
+            const uvGlowMat = new THREE.MeshBasicMaterial({ color: 0xc084fc, transparent: true, opacity: 0.88 });
             const uvBulb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), uvGlowMat);
             uvBulb.position.set(0, 0, 0.08);
             uvTool.add(uvBulb);
-            const squeegee = box(0.42, 0.16, 0.04, M(0xfacc15), 0, 0, 0.03, false);
+            const squeegee = box(0.44, 0.16, 0.04, M(0xfacc15, { r: 0.25 }), 0, 0, 0.03, false);
             fxGroup.add(uvTool, squeegee);
             g.add(fxGroup);
-            const rw = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.6), new THREE.MeshLambertMaterial({ color: 0x334e68 }));
-            rw.position.set(0, 1.25, -1.38); rw.rotation.y = Math.PI; rw.rotation.x = -0.3; g.add(rw);
-            for (const sx of [-1, 1]) for (const sz of [-1.35, 1.35]) {
-              const w = new THREE.Mesh(new THREE.CylinderGeometry(0.39, 0.39, 0.32, 20), dark);
-              w.rotation.z = Math.PI / 2; w.position.set(sx * 0.96, 0.38, sz); w.castShadow = true; g.add(w);
-              const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.235, 0.235, 0.335, 16), M(0xb8c4ce)); rim.rotation.z = Math.PI / 2; rim.position.copy(w.position); rim.castShadow = true; g.add(rim);
-              const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.35, 12), M(0x596675)); hub.rotation.z = Math.PI / 2; hub.position.copy(w.position); g.add(hub);
-              for (let k = 0; k < 5; k++) { const spoke = box(0.025, 0.25, 0.045, M(0xe2e8ef), sx * 0.96, 0.38, sz, false); spoke.rotation.x = k * Math.PI / 5; g.add(spoke); }
+
+            // Заднее стекло
+            if (type.name !== 'Грузовик') {
+              const dxR = zBT - zBB, dyR = cabH;
+              const rw = new THREE.Mesh(new THREE.PlaneGeometry(1.42, Math.hypot(dxR, dyR)), sideWindowMat);
+              rw.position.set(0, 0.91 + dyR * 0.52, (zBT + zBB) * 0.5 - 0.04);
+              rw.rotation.y = Math.PI;
+              rw.rotation.x = -Math.atan2(dxR, dyR);
+              g.add(rw);
             }
-            g.add(box(1.82, 0.13, 0.14, M(0x333b45), 0, 0.34, 2.08, false), box(1.82, 0.13, 0.14, M(0x333b45), 0, 0.34, -2.08, false));
-            for (const sx of [-1, 1]) { g.add(box(0.22, 0.16, 0.22, body, sx * 0.98, 1.18, 0.65)); g.add(box(0.045, 0.1, 0.13, M(0x7894a8), sx * 1.09, 1.18, 0.65, false)); }
-            const headMat = new THREE.MeshStandardMaterial({ color: 0xfff7c2, emissive: 0xffe599, emissiveIntensity: 0.9, roughness: 0.2 });
-            const tailMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, emissive: 0xff1e1e, emissiveIntensity: 0.25, roughness: 0.3 });
-            g.add(box(0.4, 0.18, 0.06, headMat, -0.6, 0.72, 2.11, false), box(0.4, 0.18, 0.06, headMat, 0.6, 0.72, 2.11, false));
-            g.add(box(0.4, 0.15, 0.06, tailMat, -0.6, 0.72, -2.11, false), box(0.4, 0.15, 0.06, tailMat, 0.6, 0.72, -2.11, false));
+
+            // Колеса с тормозными дисками и спицами
+            for (const sx of [-1, 1]) for (const sz of [-1.35, 1.35]) {
+              const w = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.32, 24), tireMat);
+              w.rotation.z = Math.PI / 2; w.position.set(sx * 0.96, 0.4, sz); w.castShadow = true; g.add(w);
+              const brake = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.26, 16), M(0x64748b, { r: 0.35, m: 0.8 }));
+              brake.rotation.z = Math.PI / 2; brake.position.copy(w.position); g.add(brake);
+              const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.335, 18), chromeMat);
+              rim.rotation.z = Math.PI / 2; rim.position.copy(w.position); g.add(rim);
+              const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.35, 12), trimDarkMat);
+              hub.rotation.z = Math.PI / 2; hub.position.copy(w.position); g.add(hub);
+              for (let k = 0; k < 5; k++) {
+                const spoke = box(0.03, 0.24, 0.045, chromeMat, sx * 0.96, 0.4, sz, false);
+                spoke.rotation.x = k * Math.PI / 5; g.add(spoke);
+              }
+            }
+
+            // Бамперы, решетка радиатора, зеркала и номерные знаки
+            g.add(roundedBox(1.88, 0.2, 0.22, trimDarkMat, 0, 0.34, 2.08, 0.05, false));
+            g.add(roundedBox(1.88, 0.2, 0.22, trimDarkMat, 0, 0.34, -2.08, 0.05, false));
+            g.add(box(0.88, 0.24, 0.06, trimDarkMat, 0, 0.64, 2.13, false));
+            g.add(box(0.92, 0.04, 0.07, chromeMat, 0, 0.68, 2.14, false));
+            g.add(box(0.46, 0.12, 0.06, M(0xf8fafc, { r: 0.3 }), 0, 0.38, 2.16, false));
+            g.add(box(0.46, 0.12, 0.06, M(0xf8fafc, { r: 0.3 }), 0, 0.38, -2.16, false));
+
+            for (const sx of [-1, 1]) {
+              g.add(roundedBox(0.22, 0.14, 0.18, body, sx * 1.0, 1.08, zFB - 0.12, 0.04));
+            }
+
+            // Фары с линзами и задние светодиодные фонари
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff0b3, emissiveIntensity: 1.0, roughness: 0.1 });
+            const tailMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xff1e1e, emissiveIntensity: 0.35, roughness: 0.2 });
+            g.add(roundedBox(0.42, 0.16, 0.08, headMat, -0.64, 0.68, 2.11, 0.03, false));
+            g.add(roundedBox(0.42, 0.16, 0.08, headMat, 0.64, 0.68, 2.11, 0.03, false));
+            g.add(roundedBox(0.44, 0.15, 0.08, tailMat, -0.64, 0.72, -2.11, 0.03, false));
+            g.add(roundedBox(0.44, 0.15, 0.08, tailMat, 0.64, 0.72, -2.11, 0.03, false));
+
             g.scale.set(type.s[0], type.s[1], type.s[2]);
             scene.add(g);
-            return { obj: g, ws, wsBaseY: 1.22, wsBaseZ: wsZ, fxGroup, uvTool, uvBulb, squeegee, headMat, tailMat };
+            return { obj: g, ws, wsBaseY: wsY, wsBaseZ: wsZ, wsBaseRot: wsAngle, fxGroup, uvTool, uvBulb, squeegee, headMat, tailMat };
           }
+
           function disposeCar(car) {
             if (!car) return;
             if (car.sticker && car.sticker.tex) car.sticker.tex.dispose();
@@ -765,11 +1182,12 @@ jobs:
             });
             scene.remove(car.obj);
           }
+
           function drawStickerCanvas(canvas, serviceKey, mood, ratio) {
             const svc = SERVICES[serviceKey] || SERVICES.repair;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = mood === 'angry' ? '#b83232' : mood === 'worry' ? '#bd7b16' : mood === 'happy' ? '#18794e' : '#172334';
+            ctx.fillStyle = mood === 'angry' ? '#b83232' : mood === 'worry' ? '#bd7b16' : mood === 'happy' ? '#18794e' : '#131e2e';
             ctx.beginPath(); ctx.roundRect(8, 8, 496, 156, 34); ctx.fill();
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7; ctx.stroke();
             ctx.font = 'bold 54px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -779,13 +1197,14 @@ jobs:
             const labelText = mood === 'angry' ? 'НЕДОВОЛЕН' : mood === 'worry' ? 'ЖДЁТ' : mood === 'happy' ? 'ДОВОЛЕН' : svc.label;
             ctx.fillText(labelText, 122, 74);
             if (mood !== 'happy') {
-              ctx.fillStyle = 'rgba(0,0,0,0.45)';
+              ctx.fillStyle = 'rgba(0,0,0,0.48)';
               ctx.beginPath(); ctx.roundRect(36, 126, 440, 18, 9); ctx.fill();
               const r = Math.max(0, Math.min(1, ratio));
               ctx.fillStyle = r > 0.62 ? '#48bb78' : r > 0.28 ? '#ffd166' : '#ff5252';
               ctx.beginPath(); ctx.roundRect(36, 126, Math.max(16, 440 * r), 18, 9); ctx.fill();
             }
           }
+
           function serviceSticker(serviceKey, mood = 'service', ratio = 1) {
             const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 172;
             drawStickerCanvas(canvas, serviceKey, mood, ratio);
@@ -794,6 +1213,7 @@ jobs:
             sprite.scale.set(3.25, 1.1, 1); sprite.position.set(0, 3.55, 0); sprite.renderOrder = 20;
             return { sprite, tex, canvas, mood, step: Math.round(ratio * 20) };
           }
+
           function updateCarSticker(car) {
             if (!car || !car.sticker) return;
             const ratio = car.maxPatience > 0 ? car.patience / car.maxPatience : 1;
@@ -811,12 +1231,13 @@ jobs:
               }
             }
           }
+
           function updateCarWorkVisual(car, progress, nowSec) {
             if (!car) return;
             if (progress <= 0.001) {
               car.fxGroup.visible = false;
               car.ws.position.set(0, car.wsBaseY, car.wsBaseZ);
-              car.ws.rotation.x = -0.75;
+              car.ws.rotation.x = car.wsBaseRot;
               return;
             }
             if (car.service === 'replacement') {
@@ -826,13 +1247,13 @@ jobs:
                 car.ws.material.map = crackTex;
                 car.ws.position.y = car.wsBaseY + k * 0.65;
                 car.ws.position.z = car.wsBaseZ + k * 0.25;
-                car.ws.rotation.x = -0.75 - k * 0.35;
+                car.ws.rotation.x = car.wsBaseRot - k * 0.35;
               } else {
                 const k = (1 - progress) * 2;
                 car.ws.material.map = cleanTex;
                 car.ws.position.y = car.wsBaseY + k * 0.65;
                 car.ws.position.z = car.wsBaseZ + k * 0.25;
-                car.ws.rotation.x = -0.75 - k * 0.25;
+                car.ws.rotation.x = car.wsBaseRot - k * 0.25;
               }
               car.ws.material.needsUpdate = true;
             } else if (car.service === 'repair') {
@@ -846,9 +1267,10 @@ jobs:
               car.uvTool.visible = false;
               car.squeegee.visible = true;
               car.squeegee.position.set(Math.sin(nowSec * 7) * 0.45, (0.5 - progress) * 0.5, 0.03);
-              car.ws.material.color.setRGB(1 - progress * 0.65, 1 - progress * 0.55, 1 - progress * 0.48);
+              car.ws.material.color.setRGB(1 - progress * 0.68, 1 - progress * 0.58, 1 - progress * 0.5);
             }
           }
+
           function updateToolHud() {
             const names = { replacement: 'Замена стекла', repair: 'Ремонтный набор', tint: 'Плёнка для тонировки' };
             const cap = playerCap();
@@ -857,6 +1279,7 @@ jobs:
             if (el) el.innerHTML = `Инструмент: ${names[selectedTool]}<small>Склад: ${player.glass}/${cap} стекол · ${player.supplies.repair}/${cap} наборов · ${player.supplies.tint}/${cap} плёнок</small>`;
           }
           document.querySelectorAll('.toolBtn').forEach(btn => btn.addEventListener('click', () => { selectedTool = btn.dataset.tool; updateToolHud(); sfx('click'); }));
+
           function spawnCar(b) {
             const lvl = save.unlocked.length;
             const pool = CAR_TYPES.filter(t => t.need <= lvl);
@@ -876,10 +1299,11 @@ jobs:
             car.obj.position.set(ROAD_X, 0, 16); car.obj.rotation.y = Math.PI;
             b.car = car; b.mechPrep = 0; cars.push(car);
           }
+
           function moveCar(car, dt) {
             const p = car.path[car.pi]; if (!p) return true;
-            car.tailMat.emissiveIntensity = p.rev ? 1.4 : 0.25;
-            car.headMat.emissiveIntensity = car.state === 'arrive' ? 1.1 : 0.6;
+            car.tailMat.emissiveIntensity = p.rev ? 1.5 : 0.3;
+            car.headMat.emissiveIntensity = car.state === 'arrive' ? 1.2 : 0.65;
             const o = car.obj.position, dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz);
             const sp = 10 * dt;
             if (d < sp) { o.x = p.x; o.z = p.z; car.pi++; return car.pi >= car.path.length; }
@@ -889,10 +1313,12 @@ jobs:
             car.obj.rotation.y += diff * Math.min(1, dt * 8);
             return false;
           }
+
+          // ================== Деньги на кассе ==================
           const pile = [];
           function pilePos(i) {
             const layer = Math.floor(i / 8), k = i % 8, c = k % 4, r = Math.floor(k / 4);
-            return new THREE.Vector3(8.6 + c * 0.6, 1.14 + layer * 0.13, 6.75 + r * 0.42);
+            return new THREE.Vector3(8.6 + c * 0.6, 1.15 + layer * 0.13, 6.75 + r * 0.42);
           }
           function addPile(v, from) {
             const m = new THREE.Mesh(moneyGeo, moneyMat); m.castShadow = true;
@@ -901,6 +1327,8 @@ jobs:
             const to = pilePos(Math.min(idx, 47));
             fly(m, from.clone(), () => to, 0.6, () => { m.position.copy(to); if (idx >= 48) m.visible = false; }, false);
           }
+
+          // ================== Летающие предметы ==================
           const flyers = [];
           function fly(mesh, from, toFn, dur, done, remove = true) {
             if (!mesh.parent) scene.add(mesh);
@@ -937,15 +1365,21 @@ jobs:
               if (p.t > 1.2) { p.d.remove(); pops.splice(i, 1); }
             }
           }
+
+          // ================== Зоны покупки ==================
           function zoneTex(z) {
             const paid = save.paid[z.id] || 0, left = z.cost - paid;
             return canvasTex(256, 256, (g, W, H) => {
-              g.fillStyle = 'rgba(20,26,36,0.55)'; g.fillRect(8, 8, W - 16, H - 16);
-              if (paid > 0) { g.fillStyle = 'rgba(72,187,120,0.75)'; const h = (H - 16) * paid / z.cost; g.fillRect(8, H - 8 - h, W - 16, h); }
-              g.setLineDash([22, 14]); g.lineWidth = 8; g.strokeStyle = '#ffffff'; g.strokeRect(8, 8, W - 16, H - 16);
+              g.fillStyle = 'rgba(15,23,42,0.68)'; g.beginPath(); g.roundRect(8, 8, W - 16, H - 16, 24); g.fill();
+              if (paid > 0) {
+                g.fillStyle = 'rgba(34,197,94,0.78)';
+                const h = (H - 16) * paid / z.cost;
+                g.fillRect(8, H - 8 - h, W - 16, h);
+              }
+              g.setLineDash([22, 14]); g.lineWidth = 8; g.strokeStyle = '#f8fafc'; g.strokeRect(12, 12, W - 24, H - 24);
               g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
-              g.font = '800 40px system-ui,Roboto,sans-serif'; g.fillText(z.name, W / 2, 90);
-              g.fillStyle = '#ffd166'; g.font = '900 56px system-ui,Roboto,sans-serif'; g.fillText(left + ' ₽', W / 2, 160);
+              g.font = '800 38px system-ui,Roboto,sans-serif'; g.fillText(z.name, W / 2, 92);
+              g.fillStyle = '#ffd166'; g.font = '900 54px system-ui,Roboto,sans-serif'; g.fillText(left + ' ₽', W / 2, 162);
             });
           }
           const zoneMeshes = {};
@@ -965,22 +1399,24 @@ jobs:
               if (!vis && zoneMeshes[z.id]) { scene.remove(zoneMeshes[z.id]); delete zoneMeshes[z.id]; }
             }
           }
+
+          // ================== Работники ==================
           const loaders = [];
           let cashier = null;
           function applyUnlock(id, silent) {
             if (id === 'bay2') openBay(bays[1]);
             if (id === 'bay3') openBay(bays[2]);
             if (id.startsWith('loader')) {
-              const o = makePerson(0x1e88e5, 0x263238, 0x1565c0, 1 + loaders.length); o.position.set(WARE.x + 1, 0, 5);
+              const o = makePerson(0x1d4ed8, 0x1e293b, 0x1e40af, 1 + loaders.length); o.position.set(WARE.x + 1, 0, 5);
               loaders.push({ obj: o, glass: 0, stack: [], state: 'toWare', target: null, t: 0 });
             }
             if (id.startsWith('mech')) {
               const b = bays[+id.slice(4) - 1];
-              const o = makePerson(0x2b3038, 0x1b2028, null, 2 + (+id.slice(4))); o.position.set(b.x - 1.1, 0, WORK_Z - 0.7); o.rotation.y = Math.PI * 0.8;
+              const o = makePerson(0x334155, 0x0f172a, 0xd97706, 2 + (+id.slice(4))); o.position.set(b.x - 1.1, 0, WORK_Z - 0.7); o.rotation.y = Math.PI * 0.8;
               b.mech = { obj: o };
             }
             if (id === 'cashier') {
-              const o = makePerson(0x5b6472, 0x30343b, null, 4); o.position.set(9.5, 0, 8.1); o.rotation.y = Math.PI;
+              const o = makePerson(0x0f766e, 0x1e293b, null, 4); o.position.set(9.5, 0, 8.1); o.rotation.y = Math.PI;
               cashier = { obj: o, t: 0 };
             }
             if (!silent) {
@@ -993,6 +1429,7 @@ jobs:
           openBay(bays[0]);
           save.unlocked.forEach(id => applyUnlock(id, true));
           syncZones();
+
           function walkTo(o, tx, tz, speed, dt) {
             const p = o.position, dx = tx - p.x, dz = tz - p.z, d = Math.hypot(dx, dz);
             if (d < 0.08) { animateWalk(o, false, dt); return true; }
@@ -1032,6 +1469,8 @@ jobs:
               }
             }
           }
+
+          // ================== Управление и нативная вибрация ==================
           const joy = { on: false, id: null, ox: 0, oy: 0, dx: 0, dy: 0 };
           const joyEl = document.getElementById('joy'), knob = document.getElementById('knob');
           let panelOpen = false;
@@ -1062,6 +1501,8 @@ jobs:
               }
             } catch (e) {}
           }
+
+          // ================== Звуки ==================
           let audioCtx = null, soundEnabled = true;
           function playTone(freq, duration = 0.12, type = 'sine', volume = 0.045, delay = 0) {
             if (!soundEnabled) return;
@@ -1105,28 +1546,30 @@ jobs:
           document.addEventListener('pointerdown', function unlockAudio() {
             if (!audioCtx) { try { const AC = window.AudioContext || window.webkitAudioContext; if (AC) { audioCtx = new AC(); audioCtx.resume(); } } catch (e) {} }
           }, { once: true, passive: true });
+
+          // ================== Видимые улучшения мастерской ==================
           const worldUpgradeProps = new THREE.Group(); scene.add(worldUpgradeProps);
           function addUpgradeProp(kind, level) {
             const x = kind === 'work' ? 11.7 : kind === 'staff' ? 5.2 : kind === 'cap' ? -4.8 : kind === 'speed' ? -5.8 : 13.6;
             const z = kind === 'work' ? -4.1 : kind === 'staff' ? -5.0 : kind === 'cap' ? 7.3 : kind === 'speed' ? 7.1 : 6.4;
             const group = new THREE.Group(); group.position.set(x, 0, z); worldUpgradeProps.add(group);
-            const metal = M(0x45515d), orange = M(0xf07818), light = M(0xffd166);
+            const metal = steelBeamMat, orange = trimM, light = M(0xffd166, { r: 0.2, m: 0.5 });
             if (kind === 'work') {
-              group.add(box(0.95, 0.16, 0.55, metal, 0, 0.08, 0));
+              group.add(roundedBox(0.95, 0.16, 0.55, metal, 0, 0.08, 0, 0.03));
               group.add(box(0.12, 1.1, 0.12, metal, -0.35, 0.62, 0), box(0.12, 1.1, 0.12, metal, 0.35, 0.62, 0));
               group.add(box(0.82, 0.12, 0.18, orange, 0, 1.15, 0));
               group.add(box(0.2, 0.18, 0.2, light, 0, 1.28, 0));
             } else if (kind === 'staff') {
-              group.add(box(0.9, 0.12, 0.6, metal, 0, 0.06, 0));
+              group.add(roundedBox(0.9, 0.12, 0.6, metal, 0, 0.06, 0, 0.03));
               for (let i = 0; i < Math.min(5, level + 1); i++) group.add(box(0.12, 0.42, 0.12, orange, -0.32 + i * 0.16, 0.33, 0));
             } else if (kind === 'cap') {
-              group.add(box(0.8, 0.12, 0.55, metal, 0, 0.06, 0));
-              for (let i = 0; i < Math.min(5, level + 1); i++) group.add(box(0.56, 0.09, 0.42, M(i % 2 ? 0x607d8b : 0x78909c), 0, 0.16 + i * 0.1, 0));
+              group.add(roundedBox(0.8, 0.12, 0.55, metal, 0, 0.06, 0, 0.03));
+              for (let i = 0; i < Math.min(5, level + 1); i++) group.add(box(0.56, 0.09, 0.42, rackMat, 0, 0.16 + i * 0.1, 0));
             } else if (kind === 'speed') {
-              group.add(box(0.72, 0.08, 0.48, metal, 0, 0.05, 0));
+              group.add(roundedBox(0.72, 0.08, 0.48, metal, 0, 0.05, 0, 0.03));
               group.add(box(0.12, 0.42, 0.12, orange, -0.2, 0.27, 0), box(0.12, 0.62, 0.12, orange, 0, 0.37, 0), box(0.12, 0.82, 0.12, orange, 0.2, 0.47, 0));
             } else {
-              group.add(box(0.85, 0.12, 0.45, metal, 0, 0.06, 0));
+              group.add(roundedBox(0.85, 0.12, 0.45, metal, 0, 0.06, 0, 0.03));
               group.add(box(0.68, 0.5, 0.08, orange, 0, 0.36, 0));
               group.add(box(0.08, 0.34, 0.05, light, 0, 0.36, 0.06));
             }
@@ -1154,6 +1597,8 @@ jobs:
               }
             }
           }
+
+          // ================== Улучшения ==================
           const panel = document.getElementById('panel'), upsEl = document.getElementById('ups');
           function renderPanel() {
             const xpNeed = xpForNextLevel();
@@ -1191,6 +1636,8 @@ jobs:
             if (confirm('Удалить прогресс и начать заново?')) { try { localStorage.removeItem('steklo3d'); } catch (e) {} location.reload(); }
           });
           window.onBack = function () { if (panelOpen) { openPanel(false); return ''; } persist(); return 'exit'; };
+
+          // ================== HUD ==================
           const moneyEl = document.getElementById('money'), hintEl = document.getElementById('hint'), comboEl = document.getElementById('comboBadge');
           let shownMoney = save.money;
           let hudCache = { m: -1, lvl: -1, xp: -1, rep: -1, combo: -1 };
@@ -1230,8 +1677,9 @@ jobs:
           function reputationText() { return save.reputation >= 80 ? 'Отличная репутация — клиенты приезжают чаще.' : save.reputation >= 55 ? 'Хорошая репутация — мастерская набирает популярность.' : save.reputation >= 30 ? 'Средняя репутация — старайся обслуживать быстрее.' : 'Плохая репутация — клиенты реже приезжают и платят меньше.'; }
           function changeReputation(delta) { save.reputation = Math.max(0, Math.min(100, save.reputation + delta)); }
           function carWord(n) { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? 'заказов' : a === 1 ? 'заказ' : a >= 2 && a <= 4 ? 'заказа' : 'заказов'; }
-          const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.9, 12), new THREE.MeshLambertMaterial({ color: 0xffd166, emissive: 0x7a5200 }));
+          const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.9, 16), new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0xb45309, roughness: 0.2, metalness: 0.5 }));
           arrow.rotation.x = Math.PI; scene.add(arrow);
+
           function objective() {
             for (const z of ZONES) if (zoneVisible(z) && save.money >= Math.min(z.cost - (save.paid[z.id] || 0), 1) && save.money >= (z.cost - (save.paid[z.id] || 0)) * 0.5)
               return { x: z.x, z: z.z, text: 'Открой: ' + z.name };
@@ -1257,10 +1705,13 @@ jobs:
               return { x: WARE.x, z: WARE.z, text: 'Возьми материалы на складе' };
             return null;
           }
+
+          // ================== Игровой цикл ==================
           let tick = { ware: 0, drop: 0, cash: 0, pay: 0, save: 0, hint: 0 };
           const v3 = new THREE.Vector3();
           function inCircle(o, x, z, r) { return Math.hypot(o.position.x - x, o.position.z - z) < r; }
           function inSquare(o, x, z, h) { return Math.abs(o.position.x - x) < h && Math.abs(o.position.z - z) < h; }
+
           function update(dt) {
             const P = player.obj;
             const nowSec = performance.now() / 1000;
@@ -1280,6 +1731,8 @@ jobs:
               const dx = P.position.x - c.x, dz = P.position.z - c.z, ox = c.hw + 0.35 - Math.abs(dx), oz = c.hd + 0.35 - Math.abs(dz);
               if (ox > 0 && oz > 0) { if (ox < oz) P.position.x += Math.sign(dx) * ox; else P.position.z += Math.sign(dz) * oz; }
             }
+
+            // --- склад ---
             tick.ware -= dt;
             const maxCap = playerCap();
             if (inCircle(P, WARE.x, WARE.z, 1.55) && tick.ware <= 0) {
@@ -1293,10 +1746,13 @@ jobs:
               }
               updateToolHud();
             }
+
+            // --- боксы ---
             tick.drop -= dt;
             for (const b of bays) {
               if (!b.open) continue;
               const here = inCircle(P, b.x, WORK_Z, 1.35);
+
               if (here && player.glass > 0 && b.stand + b.incoming < 3 && (!b.car || b.car.service !== 'replacement' || b.jobReady) && tick.drop <= 0) {
                 b.incoming++; tick.drop = 0.25; player.glass--; updateStack(P, player.stack, player.glass); updateToolHud();
                 const m = new THREE.Mesh(glassGeo, glassMat);
@@ -1304,6 +1760,7 @@ jobs:
                   b.incoming--; setStand(b, Math.min(3, b.stand + 1));
                 });
               }
+
               if (here && b.car && b.car.state === 'wait' && !b.jobReady && tick.drop <= 0) {
                 const needed = b.car.service;
                 if (needed === selectedTool) {
@@ -1326,6 +1783,7 @@ jobs:
                   hintEl.style.opacity = '1';
                 }
               }
+
               if (b.mech && b.car && b.car.state === 'wait' && !b.jobReady) {
                 const needed = b.car.service;
                 if (needed === 'replacement') {
@@ -1336,6 +1794,7 @@ jobs:
                   if (b.mechPrep >= 1.1) { b.jobReady = true; b.mechPrep = 0; }
                 }
               }
+
               if (b.ring) b.ring.material.color.set(here ? 0xffd166 : 0xffffff);
               if (!b.car) { b.cool -= dt; if (b.cool <= 0) spawnCar(b); }
               const car = b.car;
@@ -1353,6 +1812,8 @@ jobs:
                 }
               }
             }
+
+            // --- машины ---
             for (let i = cars.length - 1; i >= 0; i--) {
               const c = cars[i];
               if (c.state === 'arrive') {
@@ -1367,6 +1828,8 @@ jobs:
                 }
               }
             }
+
+            // --- касса ---
             tick.cash -= dt;
             if (tick.cash < -0.15) tick.cash = -0.15;
             while (pile.length && inCircle(P, CASH.x, CASH.z, 1.4) && tick.cash <= 0) {
@@ -1376,6 +1839,8 @@ jobs:
               cashier.t -= dt;
               if (cashier.t <= 0) { cashier.t = 0.22 / staffMul(); takeMoney(cashier.obj.position); }
             }
+
+            // --- зоны покупки ---
             tick.pay -= dt;
             for (const z of ZONES) {
               if (!zoneVisible(z) || !inSquare(P, z.x, z.z, 1.1)) continue;
@@ -1396,6 +1861,7 @@ jobs:
                 } else refreshZone(z);
               }
             }
+
             loaders.forEach(L => updateLoader(L, dt));
             const ob = objective();
             tick.hint -= dt;
@@ -1408,29 +1874,33 @@ jobs:
               const txt = waitingCar ? '' : (ob && save.cars < 25 ? ob.text : '');
               hintEl.textContent = txt; hintEl.style.opacity = txt ? '1' : '0';
             }
+
             if (shownMoney < save.money) shownMoney = Math.min(save.money, shownMoney + Math.max(1, (save.money - shownMoney) * dt * 8));
             else shownMoney = save.money;
             updateHud();
             tick.save -= dt;
             if (tick.save <= 0) { tick.save = 5; persist(); }
           }
+
           function finishCar(b) {
             const car = b.car;
             setProgress(b, 0);
             updateCarWorkVisual(car, 0, 0);
             if (car.service === 'replacement') setStand(b, Math.max(0, b.stand - 1));
             b.jobReady = false; b.mechPrep = 0;
+
             car.ws.material.map = car.service === 'tint' ? null : cleanTex;
             if (car.service === 'tint') {
-              car.ws.material.color.set(0x1f3647);
+              car.ws.material.color.set(0x162636);
               car.ws.material.transparent = true;
-              car.ws.material.opacity = 0.88;
+              car.ws.material.opacity = 0.9;
             } else {
               car.ws.material.color.set(0xffffff);
               car.ws.material.transparent = false;
               car.ws.material.opacity = 1;
             }
             car.ws.material.needsUpdate = true;
+
             const fastRatio = car.maxPatience > 0 ? car.patience / car.maxPatience : 0;
             let fastBonus = 1;
             if (fastRatio >= 0.7) {
@@ -1439,12 +1909,15 @@ jobs:
             } else {
               fastStreak = 0;
             }
+
             const price = Math.round(car.type.price * SERVICES[car.service].price * priceMul() * fastBonus);
             car.mood = 'happy';
             updateCarSticker(car);
+
             const n = Math.min(8, Math.max(3, Math.round(price / 15))), v = Math.floor(price / n), rest = price - v * n;
             const from = car.obj.position.clone().setY(1.6);
             for (let i = 0; i < n; i++) setTimeout(() => addPile(v + (i === 0 ? rest : 0), from), i * 70);
+
             if (fastBonus > 1) {
               popup(`+${price} ₽ (⚡Чаевые +25%)`, car.obj.position, '#ffe066');
             } else {
@@ -1454,6 +1927,7 @@ jobs:
             save.cars++;
             changeReputation(fastBonus > 1 ? 3 : 2);
             save.xp = (save.xp || 0) + (fastBonus > 1 ? 35 : 30);
+
             let leveled = false;
             while (save.xp >= xpForNextLevel()) {
               save.level++;
@@ -1476,6 +1950,7 @@ jobs:
             b.car = null; b.jobReady = false; b.cool = Math.max(1.2, 4.5 - save.reputation * 0.025) + Math.random() * 1.5;
             vibrate(35);
           }
+
           function customerLeaves(b, car) {
             fastStreak = 0;
             setProgress(b, 0);
@@ -1489,6 +1964,7 @@ jobs:
             b.car = null; b.jobReady = false; b.mechPrep = 0; b.cool = 2.5 + Math.random() * 2;
             persist(); updateHud(); if (panelOpen) renderPanel(); vibrate(90);
           }
+
           function takeMoney(to) {
             const item = pile.pop(); if (!item) return;
             save.money += item.v;
@@ -1496,10 +1972,12 @@ jobs:
             const fi = flyers.findIndex(f => f.mesh === m); if (fi >= 0) flyers.splice(fi, 1);
             fly(m, m.position.clone(), () => v3.copy(to).setY(1.4), 0.25);
           }
+
+          // ================== Камера и рендер ==================
           function resize() {
             renderer.setSize(innerWidth, innerHeight);
             camera.aspect = innerWidth / innerHeight;
-            camera.fov = camera.aspect < 1.1 ? 58 : 44;
+            camera.fov = camera.aspect < 1.1 ? 56 : 43;
             camera.updateProjectionMatrix();
           }
           addEventListener('resize', resize); resize();
@@ -1515,6 +1993,7 @@ jobs:
             fill.position.set(p.x - 10, 9, p.z - 8); fill.target.position.set(p.x, 0, p.z);
           }
           updateCamera(0, true);
+
           let last = performance.now();
           const TIME_SCALE = +(new URLSearchParams(location.search).get('ts') || 1);
           function frame(now) {
@@ -1536,7 +2015,6 @@ jobs:
           </html>
           EOF_HTML
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Проверка записанных файлов:"
           ls -lh "$PROJECT_DIR/app/src/main/assets/index.html" "$PROJECT_DIR/app/src/main/assets/three.min.js" "$PROJECT_DIR/app/src/main/java/ru/steklo/game/MainActivity.java"
 
       - name: Set up Java
