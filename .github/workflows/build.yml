@@ -271,4 +271,49 @@ jobs:
             }
             playerGroup.position.x = Math.max(-5, Math.min(5, playerGroup.position.x));
             playerGroup.position.z = Math.max(-5, Math.min(6, playerGroup.position.z));
-            camera
+            camera.position.set(playerGroup.position.x, 11, playerGroup.position.z + 8.5);
+            camera.lookAt(playerGroup.position.x, 0, playerGroup.position.z - 1.5);
+            sun.position.set(playerGroup.position.x + 5, 16, playerGroup.position.z + 3);
+            document.getElementById('money').textContent = Math.round(save.money) + ' ₽';
+            renderer.render(scene, camera);
+            requestAnimationFrame(frame);
+          }
+          requestAnimationFrame(frame);
+          </script>
+          </body>
+          </html>
+          EOF_HTML
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Готово!"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        shell: bash
+        run: |
+          cd "$PROJECT_DIR"
+          if [ -n "$ANDROID_HOME" ] && [ ! -f "local.properties" ]; then
+            echo "sdk.dir=$ANDROID_HOME" > local.properties
+          fi
+          if [ -f "gradle.properties" ] && ! grep -q "android.useAndroidX" gradle.properties; then
+            echo "" >> gradle.properties
+            echo "android.useAndroidX=true" >> gradle.properties
+          fi
+          gradle clean assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Steklo-APK
+          path: '**/build/outputs/apk/debug/*.apk'
+          if-no-files-found: error
